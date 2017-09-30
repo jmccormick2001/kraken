@@ -29,24 +29,24 @@ import (
 	"k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/rest"
-	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
+	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE upgrades).
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
-const exampleCRDName = crv1.ExampleResourcePlural + "." + crv1.GroupName
+const upgradeCRDName = crv1.PgUpgradeResourcePlural + "." + crv1.GroupName
 
-func CreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*apiextensionsv1beta1.CustomResourceDefinition, error) {
+func PgUpgradeCreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*apiextensionsv1beta1.CustomResourceDefinition, error) {
 	crd := &apiextensionsv1beta1.CustomResourceDefinition{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: exampleCRDName,
+			Name: upgradeCRDName,
 		},
 		Spec: apiextensionsv1beta1.CustomResourceDefinitionSpec{
 			Group:   crv1.GroupName,
 			Version: crv1.SchemeGroupVersion.Version,
 			Scope:   apiextensionsv1beta1.NamespaceScoped,
 			Names: apiextensionsv1beta1.CustomResourceDefinitionNames{
-				Plural: crv1.ExampleResourcePlural,
-				Kind:   reflect.TypeOf(crv1.Example{}).Name(),
+				Plural: crv1.PgUpgradeResourcePlural,
+				Kind:   reflect.TypeOf(crv1.PgUpgrade{}).Name(),
 			},
 		},
 	}
@@ -57,7 +57,7 @@ func CreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*a
 
 	// wait for CRD being established
 	err = wait.Poll(500*time.Millisecond, 60*time.Second, func() (bool, error) {
-		crd, err = clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Get(exampleCRDName, metav1.GetOptions{})
+		crd, err = clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Get(upgradeCRDName, metav1.GetOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -76,7 +76,7 @@ func CreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*a
 		return false, err
 	})
 	if err != nil {
-		deleteErr := clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(exampleCRDName, nil)
+		deleteErr := clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(upgradeCRDName, nil)
 		if deleteErr != nil {
 			return nil, errors.NewAggregate([]error{err, deleteErr})
 		}
@@ -85,16 +85,16 @@ func CreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*a
 	return crd, nil
 }
 
-func WaitForExampleInstanceProcessed(exampleClient *rest.RESTClient, name string) error {
+func WaitForPgUpgradeInstanceProcessed(exampleClient *rest.RESTClient, name string) error {
 	return wait.Poll(100*time.Millisecond, 10*time.Second, func() (bool, error) {
-		var example crv1.Example
+		var upgrade crv1.PgUpgrade
 		err := exampleClient.Get().
-			Resource(crv1.ExampleResourcePlural).
+			Resource(crv1.PgUpgradeResourcePlural).
 			Namespace(apiv1.NamespaceDefault).
 			Name(name).
-			Do().Into(&example)
+			Do().Into(&upgrade)
 
-		if err == nil && example.Status.State == crv1.ExampleStateProcessed {
+		if err == nil && upgrade.Status.State == crv1.PgUpgradeStateProcessed {
 			return true, nil
 		}
 

@@ -26,7 +26,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 
-	crv1 "github.com/crunchydata/foo/apis/cr/v1"
+	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
 )
 
 // Watcher is an example of watching on resource create/update/delete events
@@ -76,6 +76,7 @@ func (c *ExampleController) watchExamples(ctx context.Context) (cache.Controller
 		})
 
 	go controller.Run(ctx.Done())
+
 	return controller, nil
 }
 

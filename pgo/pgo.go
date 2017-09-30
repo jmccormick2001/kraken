@@ -16,9 +16,9 @@ import (
 	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
-	crv1 "github.com/crunchydata/foo/apis/cr/v1"
-	exampleclient "github.com/crunchydata/foo/client"
-	//examplecontroller "github.com/crunchydata/foo/controller"
+	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
+	exampleclient "github.com/crunchydata/kraken/client"
+	//examplecontroller "github.com/crunchydata/kraken/controller"
 )
 
 func main() {

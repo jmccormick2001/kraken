@@ -34,9 +34,9 @@ import (
 	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
-	crv1 "github.com/crunchydata/foo/apis/cr/v1"
-	exampleclient "github.com/crunchydata/foo/client"
-	examplecontroller "github.com/crunchydata/foo/controller"
+	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
+	exampleclient "github.com/crunchydata/kraken/client"
+	examplecontroller "github.com/crunchydata/kraken/controller"
 )
 
 func main() {
@@ -82,11 +82,31 @@ func main() {
 		PgClusterClient: exampleClient,
 		PgClusterScheme: exampleScheme,
 	}
+	pgUpgradecontroller := examplecontroller.PgUpgradeController{
+		PgUpgradeClient: exampleClient,
+		PgUpgradeScheme: exampleScheme,
+	}
+	pgBackupcontroller := examplecontroller.PgBackupController{
+		PgBackupClient: exampleClient,
+		PgBackupScheme: exampleScheme,
+	}
+	pgPolicycontroller := examplecontroller.PgPolicyController{
+		PgPolicyClient: exampleClient,
+		PgPolicyScheme: exampleScheme,
+	}
+	pgPolicylogcontroller := examplecontroller.PgPolicylogController{
+		PgPolicylogClient: exampleClient,
+		PgPolicylogScheme: exampleScheme,
+	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
 	go controller.Run(ctx)
 	go pgClustercontroller.Run(ctx)
+	go pgBackupcontroller.Run(ctx)
+	go pgUpgradecontroller.Run(ctx)
+	go pgPolicycontroller.Run(ctx)
+	go pgPolicylogcontroller.Run(ctx)
 
 	fmt.Print("PROCESSED sleeping 200 seconds\n")
 
