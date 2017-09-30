@@ -56,16 +56,55 @@ func main() {
 
 	// initialize custom resource using a CustomResourceDefinition if it does not exist
 	crd, err := exampleclient.CreateCustomResourceDefinition(apiextensionsclientset)
+	fmt.Printf("here %v\n", err.Error())
+	fmt.Printf("there %v\n", apierrors.IsAlreadyExists(err))
 	if err != nil && !apierrors.IsAlreadyExists(err) {
 		panic(err)
 	}
-	defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(crd.Name, nil)
+	if crd != nil {
+		fmt.Println(crd.Name + " exists ")
+	}
+	//defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(crd.Name, nil)
 
 	clustercrd, err := exampleclient.PgClusterCreateCustomResourceDefinition(apiextensionsclientset)
 	if err != nil && !apierrors.IsAlreadyExists(err) {
 		panic(err)
 	}
-	defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(clustercrd.Name, nil)
+	if clustercrd != nil {
+		fmt.Println(clustercrd.Name + " exists ")
+	}
+	//defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(clustercrd.Name, nil)
+
+	backupcrd, err := exampleclient.PgBackupCreateCustomResourceDefinition(apiextensionsclientset)
+	if err != nil && !apierrors.IsAlreadyExists(err) {
+		panic(err)
+	}
+	if backupcrd != nil {
+		fmt.Println(backupcrd.Name + " exists ")
+	}
+	//defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(clustercrd.Name, nil)
+	upgradecrd, err := exampleclient.PgUpgradeCreateCustomResourceDefinition(apiextensionsclientset)
+	if err != nil && !apierrors.IsAlreadyExists(err) {
+		panic(err)
+	}
+	if upgradecrd != nil {
+		fmt.Println(upgradecrd.Name + " exists ")
+	}
+	//defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(clustercrd.Name, nil)
+	policycrd, err := exampleclient.PgPolicyCreateCustomResourceDefinition(apiextensionsclientset)
+	if err != nil && !apierrors.IsAlreadyExists(err) {
+		panic(err)
+	}
+	if policycrd != nil {
+		fmt.Println(policycrd.Name + " exists ")
+	}
+	policylogcrd, err := exampleclient.PgPolicylogCreateCustomResourceDefinition(apiextensionsclientset)
+	if err != nil && !apierrors.IsAlreadyExists(err) {
+		panic(err)
+	}
+	if policylogcrd != nil {
+		fmt.Println(policylogcrd.Name + " exists ")
+	}
 
 	// make a new config for our extension's API group, using the first config as a baseline
 	exampleClient, exampleScheme, err := exampleclient.NewClient(config)

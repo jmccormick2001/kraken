@@ -18,8 +18,12 @@ deploy:
 	cd examples/operator && ./deploy.sh
 main:	check-go-vars
 	go install main.go
+runmain:	check-go-vars
+	main --kubeconfig=/etc/kubernetes/admin.conf
 pgo:	check-go-vars
 	cd pgo && go install pgo.go
+runpgo:	check-go-vars
+	pgo --kubeconfig=/etc/kubernetes/admin.conf
 rpgo:	check-go-vars
 	cd rclient && go build -o $(GOBIN)/rpgo rpgo.go
 clean:	check-go-vars

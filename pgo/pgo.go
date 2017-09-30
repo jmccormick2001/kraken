@@ -18,8 +18,9 @@ import (
 
 	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
 	exampleclient "github.com/crunchydata/kraken/client"
-	//examplecontroller "github.com/crunchydata/kraken/controller"
 )
+
+var exampleClient *rest.RESTClient
 
 func main() {
 	kubeconfig := flag.String("kubeconfig", "", "Path to a kube config. Only required if out-of-cluster.")
@@ -31,47 +32,47 @@ func main() {
 		panic(err)
 	}
 
-	//apiextensionsclientset, err := apiextensionsclient.NewForConfig(config)
 	_, err = apiextensionsclient.NewForConfig(config)
 	if err != nil {
 		panic(err)
 	}
 
 	// make a new config for our extension's API group, using the first config as a baseline
-	//exampleClient, exampleScheme, err := exampleclient.NewClient(config)
-	exampleClient, _, err := exampleclient.NewClient(config)
+	exampleClient, _, err = exampleclient.NewClient(config)
 	if err != nil {
 		panic(err)
 	}
 
-	// Create an instance of our custom resource
-	example := &crv1.Example{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "example1",
-		},
-		Spec: crv1.ExampleSpec{
-			Foo: "hello",
-			Bar: true,
-		},
-		Status: crv1.ExampleStatus{
-			State:   crv1.ExampleStateCreated,
-			Message: "Created, not processed yet",
-		},
-	}
-	var result crv1.Example
-	err = exampleClient.Post().
-		Resource(crv1.ExampleResourcePlural).
-		Namespace(apiv1.NamespaceDefault).
-		Body(example).
-		Do().Into(&result)
-	if err == nil {
-		fmt.Printf("CREATED: %#v\n", result)
-	} else if apierrors.IsAlreadyExists(err) {
-		fmt.Printf("ALREADY EXISTS: %#v\n", result)
-	} else {
+	createExample()
+
+	createCluster()
+
+	// Poll until Example object is handled by controller and gets status updated to "Processed"
+	err = exampleclient.WaitForExampleInstanceProcessed(exampleClient, "example1")
+	if err != nil {
 		panic(err)
 	}
+	fmt.Print("PROCESSED sleeping 20 seconds\n")
 
+	time.Sleep(20000 * time.Millisecond)
+
+	// Fetch a list of our TPRs
+	exampleList := crv1.ExampleList{}
+	err = exampleClient.Get().Resource(crv1.ExampleResourcePlural).Do().Into(&exampleList)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("LIST: %#v\n", exampleList)
+}
+
+func buildConfig(kubeconfig string) (*rest.Config, error) {
+	if kubeconfig != "" {
+		return clientcmd.BuildConfigFromFlags("", kubeconfig)
+	}
+	return rest.InClusterConfig()
+}
+
+func createCluster() {
 	userLabels := make(map[string]string)
 	masterStorage := crv1.PgStorageSpec{}
 	masterStorage.PvcName = ""
@@ -121,41 +122,46 @@ func main() {
 		},
 	}
 	var clusterresult crv1.PgCluster
-	err = exampleClient.Post().
+	err := exampleClient.Post().
 		Resource(crv1.PgClusterResourcePlural).
 		Namespace(apiv1.NamespaceDefault).
 		Body(clusterexample).
 		Do().Into(&clusterresult)
 	if err == nil {
-		fmt.Printf("CREATED: %#v\n", result)
+		fmt.Printf("CREATED: %#v\n", clusterresult)
 	} else if apierrors.IsAlreadyExists(err) {
-		fmt.Printf("ALREADY EXISTS: %#v\n", result)
+		fmt.Printf("ALREADY EXISTS: %#v\n", clusterresult)
 	} else {
 		fmt.Println(err.Error())
 		panic(err)
 	}
-
-	// Poll until Example object is handled by controller and gets status updated to "Processed"
-	err = exampleclient.WaitForExampleInstanceProcessed(exampleClient, "example1")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Print("PROCESSED sleeping 20 seconds\n")
-
-	time.Sleep(20000 * time.Millisecond)
-
-	// Fetch a list of our TPRs
-	exampleList := crv1.ExampleList{}
-	err = exampleClient.Get().Resource(crv1.ExampleResourcePlural).Do().Into(&exampleList)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("LIST: %#v\n", exampleList)
 }
-
-func buildConfig(kubeconfig string) (*rest.Config, error) {
-	if kubeconfig != "" {
-		return clientcmd.BuildConfigFromFlags("", kubeconfig)
+func createExample() {
+	// Create an instance of our custom resource
+	example := &crv1.Example{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "example1",
+		},
+		Spec: crv1.ExampleSpec{
+			Foo: "hello",
+			Bar: true,
+		},
+		Status: crv1.ExampleStatus{
+			State:   crv1.ExampleStateCreated,
+			Message: "Created, not processed yet",
+		},
 	}
-	return rest.InClusterConfig()
+	var result crv1.Example
+	err := exampleClient.Post().
+		Resource(crv1.ExampleResourcePlural).
+		Namespace(apiv1.NamespaceDefault).
+		Body(example).
+		Do().Into(&result)
+	if err == nil {
+		fmt.Printf("CREATED: %#v\n", result)
+	} else if apierrors.IsAlreadyExists(err) {
+		fmt.Printf("ALREADY EXISTS: %#v\n", result)
+	} else {
+		panic(err)
+	}
 }
