@@ -2,27 +2,27 @@ package main
 
 import (
 	//"context"
-	"flag"
-	"fmt"
-	"time"
+	//"flag"
+	//"fmt"
+	//"time"
 
-	apiv1 "k8s.io/api/core/v1"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
+	//apiv1 "k8s.io/api/core/v1"
+	//apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	//	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	//metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	//"k8s.io/client-go/rest"
+	//"k8s.io/client-go/tools/clientcmd"
 
 	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
-	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
-	exampleclient "github.com/crunchydata/kraken/client"
+	//crv1 "github.com/crunchydata/kraken/apis/cr/v1"
+	//exampleclient "github.com/crunchydata/kraken/client"
+	"github.com/crunchydata/kraken/pgo/cmd"
 )
 
-var exampleClient *rest.RESTClient
-
 func main() {
+	/**
 	kubeconfig := flag.String("kubeconfig", "", "Path to a kube config. Only required if out-of-cluster.")
 	flag.Parse()
 
@@ -32,23 +32,27 @@ func main() {
 		panic(err)
 	}
 
-	_, err = apiextensionsclient.NewForConfig(config)
+
+	Clientset, err = apiextensionsclient.NewForConfig(config)
 	if err != nil {
 		panic(err)
 	}
 
 	// make a new config for our extension's API group, using the first config as a baseline
-	exampleClient, _, err = exampleclient.NewClient(config)
+	RestClient, _, err = exampleclient.NewClient(config)
 	if err != nil {
 		panic(err)
 	}
+	*/
 
-	createExample()
+	//cmd.ConnectToKube()
 
-	createCluster()
+	cmd.Execute()
+
+	/**
 
 	// Poll until Example object is handled by controller and gets status updated to "Processed"
-	err = exampleclient.WaitForExampleInstanceProcessed(exampleClient, "example1")
+	err = exampleclient.WaitForExampleInstanceProcessed(RestClient, "example1")
 	if err != nil {
 		panic(err)
 	}
@@ -58,13 +62,15 @@ func main() {
 
 	// Fetch a list of our TPRs
 	exampleList := crv1.ExampleList{}
-	err = exampleClient.Get().Resource(crv1.ExampleResourcePlural).Do().Into(&exampleList)
+	err = RestClient.Get().Resource(crv1.ExampleResourcePlural).Do().Into(&exampleList)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("LIST: %#v\n", exampleList)
+	*/
 }
 
+/**
 func buildConfig(kubeconfig string) (*rest.Config, error) {
 	if kubeconfig != "" {
 		return clientcmd.BuildConfigFromFlags("", kubeconfig)
@@ -122,7 +128,7 @@ func createCluster() {
 		},
 	}
 	var clusterresult crv1.PgCluster
-	err := exampleClient.Post().
+	err := RestClient.Post().
 		Resource(crv1.PgClusterResourcePlural).
 		Namespace(apiv1.NamespaceDefault).
 		Body(clusterexample).
@@ -136,6 +142,7 @@ func createCluster() {
 		panic(err)
 	}
 }
+
 func createExample() {
 	// Create an instance of our custom resource
 	example := &crv1.Example{
@@ -152,7 +159,7 @@ func createExample() {
 		},
 	}
 	var result crv1.Example
-	err := exampleClient.Post().
+	err := RestClient.Post().
 		Resource(crv1.ExampleResourcePlural).
 		Namespace(apiv1.NamespaceDefault).
 		Body(example).
@@ -165,3 +172,4 @@ func createExample() {
 		panic(err)
 	}
 }
+*/

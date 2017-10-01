@@ -22,10 +22,10 @@ import (
 const PgClusterResourcePlural = "pgclusters"
 
 type PgCluster struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata"`
-	Spec              PgClusterSpec   `json:"spec"`
-	Status            PgClusterStatus `json:"status,omitempty"`
+	metav1.TypeMeta `json:",inline"`
+	ObjectMeta      metav1.ObjectMeta `json:"metadata"`
+	Spec            PgClusterSpec     `json:"spec"`
+	Status          PgClusterStatus   `json:"status,omitempty"`
 }
 
 type PgClusterSpec struct {
