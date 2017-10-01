@@ -42,8 +42,8 @@ type PgUpgradeSpec struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 type PgUpgrade struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata"`
+	metav1.TypeMeta `json:",inline"`
+	ObjectMeta      metav1.ObjectMeta `json:"metadata"`
 
 	Spec   PgUpgradeSpec   `json:"spec"`
 	Status PgUpgradeStatus `json:"status,omitempty"`
