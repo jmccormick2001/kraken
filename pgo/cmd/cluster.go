@@ -217,8 +217,7 @@ func createCluster(args []string) {
 
 			// Create an instance of our TPR
 			newInstance := getClusterParams(clusterName)
-			log.Error("fix this too")
-			//validateConfigPolicies()
+			validateConfigPolicies()
 
 			log.Error("FIX THIS 2")
 			newInstance.Spec.PSW_LAST_UPDATE = time.Now().String()

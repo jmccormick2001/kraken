@@ -31,8 +31,8 @@ type PgPolicylogSpec struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 type PgPolicylog struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata"`
+	metav1.TypeMeta `json:",inline"`
+	ObjectMeta      metav1.ObjectMeta `json:"metadata"`
 
 	Spec   PgPolicylogSpec   `json:"spec"`
 	Status PgPolicylogStatus `json:"status,omitempty"`
