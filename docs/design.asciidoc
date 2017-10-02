@@ -1,0 +1,204 @@
+= postgres Operator Design
+v1.5.2, {docdate}
+
+image::crunchy_logo.png?raw=true[]
+
+This document goes a bit deeper into the postgres Operator
+design and explains the concepts fuller.
+
+== Third Party Resources
+
+Kubernetes Third Party Resources are used in the design
+of the postgres Operator to define:
+
+ * Cluster - *pgclusters*
+ * Backup - *pgbackups*
+ * Upgrade - *pgupgrades*
+ * Clones - *pgclones*
+ * Policy - *pgpolicies*
+
+A PostgreSQL Cluster is made up of multiple Deployments, Services, and Proxies.
+
+
+== Command Line Interface
+
+The pgo command line interface (CLI) is used by a normal end-user
+to create databases or clusters, or make changes to existing databases.
+
+The CLI interacts interacts with the Kubernetes cluster using
+the golang Kubernetes client package.
+
+The CLI can create a new cluster by creating
+a new ThirdPartyResource instance of type *pgcluster*.
+
+From the CLI, users can view existing clusters that
+were deployed using the CLI and Operator.  Objects that were
+not created by the Crunchy Operator are now viewable from the CLI.
+
+== Operator Deployment
+
+The postgres Operator runs within a Deployment in the Kubernetes
+cluster.  An administrator will deploy the postgres Operator Deployment
+using the provided script.  Once installed and running, the Operator
+pod will start watching for certain defined events.
+
+The operator watches for create/update/delete actions on
+the *pgcluster* third party resources.  When
+the CLI creates for example a new *pgcluster* third party
+resource, the operator catches that event and creates pods and services
+for that new cluster request.
+
+== CLI Design
+
+The CLI uses the cobra package to implement CLI functionality
+like help text, config file processing, and command line parsing.
+
+=== Verbs
+
+A user works with the CLI by entering verbs to indicate
+what they want to do, as follows:
+[source,bash]
+----
+pgo show cluster all
+pgo delete cluster db1 db2 db3
+pgo create cluster mycluster
+----
+
+In the above example, the *show*, *backup*, *delete*, and *create* verbs are used.  The CLI is case sensitive and supports only lowercase.
+
+=== Object Types
+
+Currently the operator supports object types of *backup*, *upgrade*, and *cluster*.
+The object type follows the verb as follows:
+
+[source,bash]
+----
+pgo show cluster all
+pgo delete cluster db1 db2 db3
+pgo create cluster mycluster
+----
+
+== Debugging
+
+To see if the operator pod is running enter the following:
+[source,bash]
+----
+kubectl get pod -l 'name=postgres-operator'
+----
+
+To verify the operator installed the following ThirdPartyResources:
+[source,bash]
+----
+kubectl get thirdpartyresources
+----
+
+You should see six Crunchy third party resources deployed -
+
+....
+pg-backup.crunchydata.com      A postgres backup ThirdPartyResource       v1
+pg-clone.crunchydata.com       A postgres clone ThirdPartyResource        v1
+pg-cluster.crunchydata.com     A postgres cluster ThirdPartyResource      v1
+pg-policy.crunchydata.com      A postgres policy ThirdPartyResource       v1
+pg-policylog.crunchydata.com   A postgres policy log ThirdPartyResource   v1
+pg-upgrade.crunchydata.com     A postgres upgrade ThirdPartyResource      v1
+....
+
+# Command Line Interface
+
+You can view the  TPR Endpoints as follows:
+
+[source,bash]
+----
+ curl https//192.168.42.30:8443/apis/crunchydata.com/v1/pgclusters --insecure
+----
+
+== Persistent Volumes
+
+Currently the operator does not delete persistent volumes, it will
+delete the claims on the volumes.  The cleanup and allocation of
+PV (persistent volumes) is up to the administrator and insures that
+no data is deleted by the operator.
+
+
+== PostgreSQL Operator Deployment Strategies
+
+
+This section describes the various deployment strategies
+offered by the operator.  A deployment in this case is
+the set of objects created in Kubernetes when a
+third party resource of type *pgcluster* is created.
+TPRs are created by the pgo client command and acted upon
+by the postgres operator.
+
+=== Strategies
+
+To support different types of deployments, the operator supports
+multiple strategy implementations.  Currently there is
+only a default *cluster* strategy.
+
+In the future, more deployment strategies will be supported
+to offer users more customization to what they see deployed
+in their Kube cluster.
+
+Being open source, users can also write their own strategy!
+
+=== Specifying a Strategy
+
+In the pgo client configuration file, there is a
+*CLUSTER.STRATEGY* setting.  The current value of the
+default strategy is *1*.  If you don't set that value, the
+default strategy is assumed.  If you set that value to something
+not supported, the operator will log an error.
+
+=== Strategy Template Files
+
+Each strategy supplies its set of templates used by the operator
+to create new pods, services, etc.
+
+When the operator is deployed, part of the deployment process
+is to copy the required strategy templates into a ConfigMap (*operator-conf*)
+that gets mounted into */operator-conf* within the operator pod.
+
+The directory structure of the strategy templates is as
+follows:
+....
+├── backup-job.json
+├── cluster
+│   └── 1
+│       ├── cluster-deployment-1.json
+│       ├── cluster-replica-deployment-1.json
+│       └── cluster-service-1.json
+├── pvc.json
+....
+
+In this structure, each strategy's templates live in a subdirectory
+that matches the strategy identifier.  The default strategy templates
+are denoted by the value of *1* in the directory structure above.
+
+If you add another strategy, the file names *must* be unique within
+the entire strategy directory.  This is due to the way the templates
+are stored within the ConfigMap.
+
+
+=== Default Cluster Deployment Strategy (1)
+
+Using the default cluster strategy, a *cluster* when created by the operator will create the
+following on a Kube cluster:
+
+image::operator-diagram-cluster.png?raw=true[]
+
+The default cluster strategy creates the following:
+
+ * deployment running a Postgres *master* container with replica count of 1
+ * service mapped to the *master* Postgres database
+ * service mapped to the *replica* Postgres database
+ * PVC for the *master* will be created if not specified in configuration, this
+   assumes you are using a non-shared volume technology (e.g. Amazon EBS),
+   if the CLUSTER.PVC_NAME value is set in your configuration then a
+   shared volume technology is assumed (e.g. HostPath or NFS), if a PVC
+   is created for the master, the naming convention is *clustername-pvc*
+   where clustername is the name of your cluster.
+
+If you want to add a Postgres replica to a cluster, you will
+*scale* the cluster, for each *replica-count*, a Deployment
+will be created that acts as a Postgres replica.

@@ -1,0 +1,11 @@
+FROM centos:7
+
+LABEL Release="1.5.2" Vendor="Crunchy Data Solutions" 
+
+RUN yum -y update && yum -y clean all
+
+VOLUME ["/pgdata"]
+
+USER 26
+
+CMD ["sh", "-c", "ls /pgdata/${BACKUP_ROOT}"]
