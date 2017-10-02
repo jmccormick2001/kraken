@@ -42,7 +42,10 @@ import (
 	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
 	exampleclient "github.com/crunchydata/kraken/client"
 	examplecontroller "github.com/crunchydata/kraken/controller"
+	"k8s.io/client-go/kubernetes"
 )
+
+var Clientset *kubernetes.Clientset
 
 func main() {
 	kubeconfig := flag.String("kubeconfig", "", "Path to a kube config. Only required if out-of-cluster.")
@@ -54,9 +57,16 @@ func main() {
 		panic(err)
 	}
 
+	//TODO is this needed any longer?
 	apiextensionsclientset, err := apiextensionsclient.NewForConfig(config)
 	if err != nil {
 		panic(err)
+	}
+
+	Clientset, err = kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Info("error creating Clientset")
+		panic(err.Error())
 	}
 
 	// initialize custom resource using a CustomResourceDefinition if it does not exist
@@ -121,8 +131,9 @@ func main() {
 		ExampleScheme: exampleScheme,
 	}
 	pgClustercontroller := examplecontroller.PgclusterController{
-		PgclusterClient: exampleClient,
-		PgclusterScheme: exampleScheme,
+		PgclusterClient:    exampleClient,
+		PgclusterScheme:    exampleScheme,
+		PgclusterClientset: Clientset,
 	}
 	pgUpgradecontroller := examplecontroller.PgupgradeController{
 		PgupgradeClient: exampleClient,

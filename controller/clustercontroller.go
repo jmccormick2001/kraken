@@ -7,16 +7,19 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 
 	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
+	clusteroperator "github.com/crunchydata/kraken/operator/cluster"
 )
 
 // Watcher is an example of watching on resource create/update/delete events
 type PgclusterController struct {
-	PgclusterClient *rest.RESTClient
-	PgclusterScheme *runtime.Scheme
+	PgclusterClient    *rest.RESTClient
+	PgclusterScheme    *runtime.Scheme
+	PgclusterClientset *kubernetes.Clientset
 }
 
 // Run starts an Example resource controller
@@ -95,6 +98,8 @@ func (c *PgclusterController) onAdd(obj interface{}) {
 	} else {
 		fmt.Printf("UPDATED status: %#v\n", exampleCopy)
 	}
+
+	clusteroperator.AddClusterBase(c.PgclusterClientset, c.PgclusterClient, exampleCopy, example.ObjectMeta.Namespace)
 }
 
 func (c *PgclusterController) onUpdate(oldObj, newObj interface{}) {

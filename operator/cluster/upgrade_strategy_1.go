@@ -22,15 +22,15 @@ import (
 	"bytes"
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
-	"github.com/crunchydata/kraken/apis/cr/v1"
+	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
 	"github.com/crunchydata/kraken/operator/pvc"
 	"github.com/crunchydata/kraken/util"
 	"k8s.io/client-go/kubernetes"
 	//"k8s.io/client-go/pkg/api/v1"
-	//v1batch "k8s.io/client-go/pkg/apis/batch/v1"
-	v1batch "k8s.io/api/batch/v1"
-	//"k8s.io/client-go/pkg/apis/extensions/v1beta1"
-	"k8s.io/api/extensions/v1beta1"
+	v1batch "k8s.io/client-go/pkg/apis/batch/v1"
+	//v1batch "k8s.io/api/batch/v1"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
+	//"k8s.io/api/extensions/v1beta1"
 	"k8s.io/client-go/rest"
 	"text/template"
 )
@@ -56,7 +56,7 @@ func init() {
 	JobTemplate1 = util.LoadTemplate(DB_UPGRADE_JOB_PATH)
 }
 
-func (r ClusterStrategy1) MinorUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient, cl *crv1.PgCluster, upgrade *crv1.PgUpgrade, namespace string) error {
+func (r ClusterStrategy1) MinorUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient, cl *crv1.Pgcluster, upgrade *crv1.Pgupgrade, namespace string) error {
 	var err error
 	var masterDoc bytes.Buffer
 	var deploymentResult *v1beta1.Deployment
@@ -113,7 +113,7 @@ func (r ClusterStrategy1) MinorUpgrade(clientset *kubernetes.Clientset, restclie
 	log.Info("created master Deployment " + deploymentResult.Name + " in namespace " + namespace)
 
 	//update the upgrade TPR status to completed
-	err = util.Patch(restclient, "/spec/upgradestatus", crv1.UPGRADE_COMPLETED_STATUS, crv1.PgUpgradeResourcePlural, upgrade.Spec.Name, namespace)
+	err = util.Patch(restclient, "/spec/upgradestatus", crv1.UPGRADE_COMPLETED_STATUS, crv1.PgupgradeResourcePlural, upgrade.Spec.Name, namespace)
 	if err != nil {
 		log.Error("error in upgradestatus patch " + err.Error())
 	}
@@ -122,7 +122,7 @@ func (r ClusterStrategy1) MinorUpgrade(clientset *kubernetes.Clientset, restclie
 
 }
 
-func (r ClusterStrategy1) MajorUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient, cl *crv1.PgCluster, upgrade *crv1.PgUpgrade, namespace string) error {
+func (r ClusterStrategy1) MajorUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient, cl *crv1.Pgcluster, upgrade *crv1.Pgupgrade, namespace string) error {
 	var err error
 
 	log.Info("major cluster upgrade using Strategy 1 in namespace " + namespace)
@@ -172,7 +172,7 @@ func (r ClusterStrategy1) MajorUpgrade(clientset *kubernetes.Clientset, restclie
 	log.Info("created Job " + resultJob.Name)
 
 	//patch the upgrade crv1 with the new pvc name
-	err = util.Patch(restclient, "/spec/newpvcname", pvcName, crv1.PgUpgradeResourcePlural, upgrade.Spec.Name, namespace)
+	err = util.Patch(restclient, "/spec/newpvcname", pvcName, crv1.PgupgradeResourcePlural, upgrade.Spec.Name, namespace)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -184,7 +184,7 @@ func (r ClusterStrategy1) MajorUpgrade(clientset *kubernetes.Clientset, restclie
 
 }
 
-func (r ClusterStrategy1) MajorUpgradeFinalize(clientset *kubernetes.Clientset, client *rest.RESTClient, cl *crv1.PgCluster, upgrade *crv1.PgUpgrade, namespace string) error {
+func (r ClusterStrategy1) MajorUpgradeFinalize(clientset *kubernetes.Clientset, client *rest.RESTClient, cl *crv1.Pgcluster, upgrade *crv1.Pgupgrade, namespace string) error {
 	var err error
 	var masterDoc bytes.Buffer
 	var deploymentResult *v1beta1.Deployment

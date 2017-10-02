@@ -36,8 +36,8 @@ import (
 	"strconv"
 
 	//"k8s.io/client-go/pkg/api"
-	//"k8s.io/client-go/pkg/apis/extensions/v1beta1"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
+	//"k8s.io/api/extensions/v1beta1"
 	"k8s.io/client-go/rest"
 	"text/template"
 	"time"
@@ -69,12 +69,12 @@ func init() {
 	AffinityTemplate1 = util.LoadTemplate("/operator-conf/affinity.json")
 }
 
-func (r ClusterStrategy1) AddCluster(clientset *kubernetes.Clientset, client *rest.RESTClient, cl *crv1.PgCluster, namespace string, masterPvcName string) error {
+func (r ClusterStrategy1) AddCluster(clientset *kubernetes.Clientset, client *rest.RESTClient, cl *crv1.Pgcluster, namespace string, masterPvcName string) error {
 	var masterDoc bytes.Buffer
 	var err error
 	var deploymentResult *v1beta1.Deployment
 
-	log.Info("creating PgCluster object using Strategy 1" + " in namespace " + namespace)
+	log.Info("creating Pgcluster object using Strategy 1" + " in namespace " + namespace)
 	log.Info("created with Name=" + cl.Spec.Name + " in namespace " + namespace)
 
 	//create the master service
@@ -162,7 +162,7 @@ func (r ClusterStrategy1) AddCluster(clientset *kubernetes.Clientset, client *re
 				return err
 			}
 
-			ScaleReplicas(serviceName, clientset, cl, newReplicas, namespace)
+			ScaleReplicasBase(serviceName, clientset, cl, newReplicas, namespace)
 		}
 	}
 
@@ -170,10 +170,10 @@ func (r ClusterStrategy1) AddCluster(clientset *kubernetes.Clientset, client *re
 
 }
 
-func (r ClusterStrategy1) DeleteCluster(clientset *kubernetes.Clientset, restclient *rest.RESTClient, cl *crv1.PgCluster, namespace string) error {
+func (r ClusterStrategy1) DeleteCluster(clientset *kubernetes.Clientset, restclient *rest.RESTClient, cl *crv1.Pgcluster, namespace string) error {
 
 	var err error
-	log.Info("deleting PgCluster object" + " in namespace " + namespace)
+	log.Info("deleting Pgcluster object" + " in namespace " + namespace)
 	log.Info("deleting with Name=" + cl.Spec.Name + " in namespace " + namespace)
 
 	//delete the master and replica deployments and replica sets
@@ -230,7 +230,7 @@ func (r ClusterStrategy1) DeleteCluster(clientset *kubernetes.Clientset, restcli
 
 }
 
-func shutdownCluster(clientset *kubernetes.Clientset, client *rest.RESTClient, cl *crv1.PgCluster, namespace string) error {
+func shutdownCluster(clientset *kubernetes.Clientset, client *rest.RESTClient, cl *crv1.Pgcluster, namespace string) error {
 	var err error
 
 	//var replicaName = cl.Spec.Name + REPLICA_SUFFIX
@@ -307,7 +307,7 @@ func shutdownCluster(clientset *kubernetes.Clientset, client *rest.RESTClient, c
 
 }
 
-func (r ClusterStrategy1) PrepareClone(clientset *kubernetes.Clientset, restclient *rest.RESTClient, cloneName string, cl *crv1.PgCluster, namespace string) error {
+func (r ClusterStrategy1) PrepareClone(clientset *kubernetes.Clientset, restclient *rest.RESTClient, cloneName string, cl *crv1.Pgcluster, namespace string) error {
 	var err error
 
 	log.Info("creating clone deployment using Strategy 1 in namespace " + namespace)
@@ -430,7 +430,7 @@ func (r ClusterStrategy1) UpdatePolicyLabels(clientset *kubernetes.Clientset, cl
 
 }
 
-func (r ClusterStrategy1) CreateReplica(serviceName string, clientset *kubernetes.Clientset, cl *crv1.PgCluster, depName, pvcName, namespace string, cloneFlag bool) error {
+func (r ClusterStrategy1) CreateReplica(serviceName string, clientset *kubernetes.Clientset, cl *crv1.Pgcluster, depName, pvcName, namespace string, cloneFlag bool) error {
 	var replicaDoc bytes.Buffer
 	var err error
 	var replicaDeploymentResult *v1beta1.Deployment

@@ -84,9 +84,9 @@ func ProcessPolicies(clientset *kubernetes.Clientset, restclient *rest.RESTClien
 func applyPolicies(namespace string, clientset *kubernetes.Clientset, restclient *rest.RESTClient, clusterName string) {
 	//dep *v1beta1.Deployment
 	//get the crv1 which holds the requested labels if any
-	cl := crv1.PgCluster{}
+	cl := crv1.Pgcluster{}
 	err := restclient.Get().
-		Resource(crv1.PgClusterResourcePlural).
+		Resource(crv1.PgclusterResourcePlural).
 		Namespace(namespace).
 		Name(clusterName).
 		Do().
@@ -138,12 +138,12 @@ func applyPolicies(namespace string, clientset *kubernetes.Clientset, restclient
 
 func ProcessPolicylog(clientset *kubernetes.Clientset, restclient *rest.RESTClient, stopchan chan struct{}, namespace string) {
 
-	eventchan := make(chan *crv1.PgPolicylog)
+	eventchan := make(chan *crv1.Pgpolicylog)
 
-	source := cache.NewListWatchFromClient(restclient, crv1.PgPolicylogResourcePlural, namespace, fields.Everything())
+	source := cache.NewListWatchFromClient(restclient, crv1.PgpolicylogResourcePlural, namespace, fields.Everything())
 
 	createAddHandler := func(obj interface{}) {
-		policylog := obj.(*crv1.PgPolicylog)
+		policylog := obj.(*crv1.Pgpolicylog)
 		eventchan <- policylog
 		addPolicylog(clientset, restclient, policylog, namespace)
 	}
@@ -154,7 +154,7 @@ func ProcessPolicylog(clientset *kubernetes.Clientset, restclient *rest.RESTClie
 	}
 	_, controller := cache.NewInformer(
 		source,
-		&crv1.PgPolicylog{},
+		&crv1.Pgpolicylog{},
 		time.Second*10,
 		cache.ResourceEventHandlerFuncs{
 			AddFunc:    createAddHandler,
@@ -176,7 +176,7 @@ func ProcessPolicylog(clientset *kubernetes.Clientset, restclient *rest.RESTClie
 
 }
 
-func addPolicylog(clientset *kubernetes.Clientset, restclient *rest.RESTClient, policylog *crv1.PgPolicylog, namespace string) {
+func addPolicylog(clientset *kubernetes.Clientset, restclient *rest.RESTClient, policylog *crv1.Pgpolicylog, namespace string) {
 	policylogname := policylog.Spec.PolicyName + policylog.Spec.ClusterName
 	log.Infof("policylog added=%s\n", policylogname)
 
@@ -189,9 +189,9 @@ func addPolicylog(clientset *kubernetes.Clientset, restclient *rest.RESTClient, 
 		labels[policylog.Spec.PolicyName] = "pgpolicy"
 	}
 
-	cl := crv1.PgCluster{}
+	cl := crv1.Pgcluster{}
 	err = restclient.Get().
-		Resource(crv1.PgClusterResourcePlural).
+		Resource(crv1.PgclusterResourcePlural).
 		Namespace(namespace).
 		Name(policylog.Spec.ClusterName).
 		Do().
@@ -218,13 +218,13 @@ func addPolicylog(clientset *kubernetes.Clientset, restclient *rest.RESTClient, 
 	}
 
 	//update the policylog with applydate and status
-	err = util.Patch(restclient, "/spec/status", crv1.UPGRADE_COMPLETED_STATUS, crv1.PgPolicylogResourcePlural, policylogname, namespace)
+	err = util.Patch(restclient, "/spec/status", crv1.UPGRADE_COMPLETED_STATUS, crv1.PgpolicylogResourcePlural, policylogname, namespace)
 	if err != nil {
 		log.Error("error in policylog status patch " + err.Error())
 	}
 
 	t := time.Now()
-	err = util.Patch(restclient, "/spec/applydate", t.Format("2006-01-02-15:04:05"), crv1.PgPolicylogResourcePlural, policylogname, namespace)
+	err = util.Patch(restclient, "/spec/applydate", t.Format("2006-01-02-15:04:05"), crv1.PgpolicylogResourcePlural, policylogname, namespace)
 	if err != nil {
 		log.Error("error in policylog applydate patch " + err.Error())
 	}
