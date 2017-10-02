@@ -1,0 +1,38 @@
+KUBECONFIG:  /etc/kubernetes/admin.conf
+NAMESPACE:  default
+CLUSTER:
+  CCP_IMAGE_TAG:  centos7-9.6-1.5.1
+  PORT:  5432
+  PG_MASTER_USER:  master
+  PG_MASTER_PASSWORD:  password
+  PG_USER:  testuser
+  PG_PASSWORD:  password
+  PG_DATABASE:  userdb
+  PG_ROOT_PASSWORD:  password
+  PASSWORD_AGE_DAYS:  60
+  PASSWORD_LENGTH:  8
+  STRATEGY:  1
+  REPLICAS:  0
+MASTER_STORAGE:
+  STORAGE_CLASS:  fast
+  PVC_ACCESS_MODE:  ReadWriteOnce
+  PVC_SIZE:  100M
+  STORAGE_TYPE:  dynamic
+  FSGROUP:  26
+BACKUP_STORAGE:
+  STORAGE_CLASS:  fast
+  PVC_ACCESS_MODE:  ReadWriteOnce
+  PVC_SIZE:  100M
+  STORAGE_TYPE:  dynamic
+  FSGROUP:  26
+REPLICA_STORAGE:
+  STORAGE_CLASS:  fast
+  PVC_ACCESS_MODE:  ReadWriteOnce
+  PVC_SIZE:  100M
+  STORAGE_TYPE:  dynamic
+  FSGROUP:  26
+PGO:
+  LSPVC_TEMPLATE:  /home/jeffmc/.pgo.lspvc-template.json
+  CSVLOAD_TEMPLATE:  /home/jeffmc/.pgo.csvload-template.json
+  CO_IMAGE_TAG:  centos7-1.5.2
+  DEBUG:  false

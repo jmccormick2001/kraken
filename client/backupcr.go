@@ -33,9 +33,9 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
-const backupCRDName = crv1.PgBackupResourcePlural + "." + crv1.GroupName
+const backupCRDName = crv1.PgbackupResourcePlural + "." + crv1.GroupName
 
-func PgBackupCreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*apiextensionsv1beta1.CustomResourceDefinition, error) {
+func PgbackupCreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*apiextensionsv1beta1.CustomResourceDefinition, error) {
 	crd := &apiextensionsv1beta1.CustomResourceDefinition{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: backupCRDName,
@@ -45,8 +45,8 @@ func PgBackupCreateCustomResourceDefinition(clientset apiextensionsclient.Interf
 			Version: crv1.SchemeGroupVersion.Version,
 			Scope:   apiextensionsv1beta1.NamespaceScoped,
 			Names: apiextensionsv1beta1.CustomResourceDefinitionNames{
-				Plural: crv1.PgBackupResourcePlural,
-				Kind:   reflect.TypeOf(crv1.PgBackup{}).Name(),
+				Plural: crv1.PgbackupResourcePlural,
+				Kind:   reflect.TypeOf(crv1.Pgbackup{}).Name(),
 			},
 		},
 	}
@@ -85,16 +85,16 @@ func PgBackupCreateCustomResourceDefinition(clientset apiextensionsclient.Interf
 	return crd, nil
 }
 
-func WaitForPgBackupInstanceProcessed(exampleClient *rest.RESTClient, name string) error {
+func WaitForPgbackupInstanceProcessed(exampleClient *rest.RESTClient, name string) error {
 	return wait.Poll(100*time.Millisecond, 10*time.Second, func() (bool, error) {
-		var backup crv1.PgBackup
+		var backup crv1.Pgbackup
 		err := exampleClient.Get().
-			Resource(crv1.PgBackupResourcePlural).
+			Resource(crv1.PgbackupResourcePlural).
 			Namespace(apiv1.NamespaceDefault).
 			Name(name).
 			Do().Into(&backup)
 
-		if err == nil && backup.Status.State == crv1.PgBackupStateProcessed {
+		if err == nil && backup.Status.State == crv1.PgbackupStateProcessed {
 			return true, nil
 		}
 

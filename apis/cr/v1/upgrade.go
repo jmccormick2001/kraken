@@ -22,9 +22,9 @@ import (
 const UPGRADE_COMPLETED_STATUS = "completed"
 const UPGRADE_SUBMITTED_STATUS = "submitted"
 
-const PgUpgradeResourcePlural = "pgupgrades"
+const PgupgradeResourcePlural = "pgupgrades"
 
-type PgUpgradeSpec struct {
+type PgupgradeSpec struct {
 	Name              string        `json:"name"`
 	RESOURCE_TYPE     string        `json:"resourcetype"`
 	UPGRADE_TYPE      string        `json:"upgradetype"`
@@ -41,30 +41,30 @@ type PgUpgradeSpec struct {
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-type PgUpgrade struct {
-	metav1.TypeMeta `json:",inline"`
-	ObjectMeta      metav1.ObjectMeta `json:"metadata"`
+type Pgupgrade struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
 
-	Spec   PgUpgradeSpec   `json:"spec"`
-	Status PgUpgradeStatus `json:"status,omitempty"`
+	Spec   PgupgradeSpec   `json:"spec"`
+	Status PgupgradeStatus `json:"status,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-type PgUpgradeList struct {
+type PgupgradeList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 
-	Items []PgUpgrade `json:"items"`
+	Items []Pgupgrade `json:"items"`
 }
 
-type PgUpgradeStatus struct {
-	State   PgUpgradeState `json:"state,omitempty"`
+type PgupgradeStatus struct {
+	State   PgupgradeState `json:"state,omitempty"`
 	Message string         `json:"message,omitempty"`
 }
 
-type PgUpgradeState string
+type PgupgradeState string
 
 const (
-	PgUpgradeStateCreated   PgUpgradeState = "Created"
-	PgUpgradeStateProcessed PgUpgradeState = "Processed"
+	PgupgradeStateCreated   PgupgradeState = "Created"
+	PgupgradeStateProcessed PgupgradeState = "Processed"
 )

@@ -62,11 +62,11 @@ func ExecPolicy(clientset *kubernetes.Clientset, restclient *rest.RESTClient, na
 }
 
 func GetPolicySQL(restclient *rest.RESTClient, namespace, policyName string) (string, error) {
-	p := crv1.PgPolicy{}
+	p := crv1.Pgpolicy{}
 	err := restclient.Get().
 		Name(policyName).
 		Namespace(namespace).
-		Resource(crv1.PgPolicyResourcePlural).
+		Resource(crv1.PgpolicyResourcePlural).
 		Do().
 		Into(&p)
 	if err == nil {
@@ -105,9 +105,9 @@ func readSQLFromURL(urlstring string) (string, error) {
 }
 
 func ValidatePolicy(restclient *rest.RESTClient, namespace string, policyName string) error {
-	result := crv1.PgPolicy{}
+	result := crv1.Pgpolicy{}
 	err := restclient.Get().
-		Resource(crv1.PgPolicyResourcePlural).
+		Resource(crv1.PgpolicyResourcePlural).
 		Namespace(namespace).
 		Name(policyName).
 		Do().

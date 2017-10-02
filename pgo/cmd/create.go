@@ -30,7 +30,6 @@ var UserLabels string
 var UserLabelsMap map[string]string
 var Series int
 
-// CreateCmd represents the create command
 var CreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a Cluster or Policy",
@@ -60,11 +59,10 @@ pgo create cluster mycluster`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 		log.Debug("create cluster called")
-		log.Error("fix this one here")
-		//err := validateConfigPolicies()
-		//if err != nil {
-		//return
-		//}
+		err = validateConfigPolicies()
+		if err != nil {
+			return
+		}
 		if SecretFrom != "" || BackupPath != "" || BackupPVC != "" {
 			if SecretFrom == "" || BackupPath == "" || BackupPVC == "" {
 				log.Error("secret-from, backup-path, backup-pvc are all required to perform a restore")
@@ -100,7 +98,6 @@ pgo create cluster mycluster`,
 	},
 }
 
-/**
 var createPolicyCmd = &cobra.Command{
 	Use:   "policy",
 	Short: "Create a policy",
@@ -120,20 +117,12 @@ pgo create policy mypolicy --in-file=/tmp/mypolicy.sql`,
 		}
 	},
 }
-*/
 
 func init() {
 	RootCmd.AddCommand(CreateCmd)
 	CreateCmd.AddCommand(createClusterCmd)
-	//CreateCmd.AddCommand(createPolicyCmd)
+	CreateCmd.AddCommand(createPolicyCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
 	createClusterCmd.Flags().StringVarP(&NodeName, "node-name", "n", "", "The node on which to place the master database")
 	createClusterCmd.Flags().StringVarP(&Password, "password", "w", "", "The password to use for initial database users")
 	createClusterCmd.Flags().StringVarP(&SecretFrom, "secret-from", "s", "", "The cluster name to use when restoring secrets")
@@ -143,8 +132,8 @@ func init() {
 	createClusterCmd.Flags().StringVarP(&PoliciesFlag, "policies", "z", "", "The policies to apply when creating a cluster, comma separated")
 	createClusterCmd.Flags().StringVarP(&CCP_IMAGE_TAG, "ccp-image-tag", "c", "", "The CCP_IMAGE_TAG to use for cluster creation, if specified overrides the .pgo.yaml setting")
 	createClusterCmd.Flags().IntVarP(&Series, "series", "e", 1, "The number of clusters to create in a series, defaults to 1")
-	//createPolicyCmd.Flags().StringVarP(&PolicyURL, "url", "u", "", "The url to use for adding a policy")
-	//createPolicyCmd.Flags().StringVarP(&PolicyFile, "in-file", "i", "", "The policy file path to use for adding a policy")
+	createPolicyCmd.Flags().StringVarP(&PolicyURL, "url", "u", "", "The url to use for adding a policy")
+	createPolicyCmd.Flags().StringVarP(&PolicyFile, "in-file", "i", "", "The policy file path to use for adding a policy")
 	UserLabelsMap = make(map[string]string)
 
 }

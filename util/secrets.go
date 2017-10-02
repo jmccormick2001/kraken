@@ -40,7 +40,7 @@ var seededRand *rand.Rand = rand.New(
 	rand.NewSource(time.Now().UnixNano()))
 
 //create pgroot, pgmaster, and pguser secrets
-func CreateDatabaseSecrets(clientset *kubernetes.Clientset, restclient *rest.RESTClient, cl *crv1.PgCluster, namespace string) error {
+func CreateDatabaseSecrets(clientset *kubernetes.Clientset, restclient *rest.RESTClient, cl *crv1.Pgcluster, namespace string) error {
 
 	//pgroot
 	username := "postgres"
@@ -56,7 +56,7 @@ func CreateDatabaseSecrets(clientset *kubernetes.Clientset, restclient *rest.RES
 	}
 
 	cl.Spec.PGROOT_SECRET_NAME = secretName
-	err = Patch(restclient, "/spec/pgrootsecretname", secretName, crv1.PgClusterResourcePlural, cl.Spec.Name, namespace)
+	err = Patch(restclient, "/spec/pgrootsecretname", secretName, crv1.PgclusterResourcePlural, cl.Spec.Name, namespace)
 	if err != nil {
 		log.Error("error patching cluster" + err.Error())
 	}
@@ -72,7 +72,7 @@ func CreateDatabaseSecrets(clientset *kubernetes.Clientset, restclient *rest.RES
 	}
 
 	cl.Spec.PGMASTER_SECRET_NAME = secretName
-	err = Patch(restclient, "/spec/pgmastersecretname", secretName, crv1.PgClusterResourcePlural, cl.Spec.Name, namespace)
+	err = Patch(restclient, "/spec/pgmastersecretname", secretName, crv1.PgclusterResourcePlural, cl.Spec.Name, namespace)
 	if err != nil {
 		log.Error("error patching cluster " + err.Error())
 	}
@@ -88,7 +88,7 @@ func CreateDatabaseSecrets(clientset *kubernetes.Clientset, restclient *rest.RES
 	}
 
 	cl.Spec.PGUSER_SECRET_NAME = secretName
-	err = Patch(restclient, "/spec/pgusersecretname", secretName, crv1.PgClusterResourcePlural, cl.Spec.Name, namespace)
+	err = Patch(restclient, "/spec/pgusersecretname", secretName, crv1.PgclusterResourcePlural, cl.Spec.Name, namespace)
 	if err != nil {
 		log.Error("error patching cluster " + err.Error())
 	}

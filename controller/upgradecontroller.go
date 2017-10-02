@@ -14,19 +14,19 @@ import (
 )
 
 // Watcher is an example of watching on resource create/update/delete events
-type PgUpgradeController struct {
-	PgUpgradeClient *rest.RESTClient
-	PgUpgradeScheme *runtime.Scheme
+type PgupgradeController struct {
+	PgupgradeClient *rest.RESTClient
+	PgupgradeScheme *runtime.Scheme
 }
 
 // Run starts an Example resource controller
-func (c *PgUpgradeController) Run(ctx context.Context) error {
-	fmt.Print("Watch PgUpgrade objects\n")
+func (c *PgupgradeController) Run(ctx context.Context) error {
+	fmt.Print("Watch Pgupgrade objects\n")
 
 	// Watch Example objects
-	_, err := c.watchPgUpgrades(ctx)
+	_, err := c.watchPgupgrades(ctx)
 	if err != nil {
-		fmt.Printf("Failed to register watch for PgUpgrade resource: %v\n", err)
+		fmt.Printf("Failed to register watch for Pgupgrade resource: %v\n", err)
 		return err
 	}
 
@@ -34,10 +34,10 @@ func (c *PgUpgradeController) Run(ctx context.Context) error {
 	return ctx.Err()
 }
 
-func (c *PgUpgradeController) watchPgUpgrades(ctx context.Context) (cache.Controller, error) {
+func (c *PgupgradeController) watchPgupgrades(ctx context.Context) (cache.Controller, error) {
 	source := cache.NewListWatchFromClient(
-		c.PgUpgradeClient,
-		crv1.PgUpgradeResourcePlural,
+		c.PgupgradeClient,
+		crv1.PgupgradeResourcePlural,
 		apiv1.NamespaceAll,
 		fields.Everything())
 
@@ -45,7 +45,7 @@ func (c *PgUpgradeController) watchPgUpgrades(ctx context.Context) (cache.Contro
 		source,
 
 		// The object type.
-		&crv1.PgUpgrade{},
+		&crv1.Pgupgrade{},
 
 		// resyncPeriod
 		// Every resyncPeriod, all resources in the cache will retrigger events.
@@ -63,29 +63,29 @@ func (c *PgUpgradeController) watchPgUpgrades(ctx context.Context) (cache.Contro
 	return controller, nil
 }
 
-func (c *PgUpgradeController) onAdd(obj interface{}) {
-	example := obj.(*crv1.PgUpgrade)
-	fmt.Printf("[PgUpgradeCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
+func (c *PgupgradeController) onAdd(obj interface{}) {
+	example := obj.(*crv1.Pgupgrade)
+	fmt.Printf("[PgupgradeCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
 
 	// NEVER modify objects from the store. It's a read-only, local cache.
 	// You can use exampleScheme.Copy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
-	copyObj, err := c.PgUpgradeScheme.Copy(example)
+	copyObj, err := c.PgupgradeScheme.Copy(example)
 	if err != nil {
 		fmt.Printf("ERROR creating a deep copy of example object: %v\n", err)
 		return
 	}
 
-	exampleCopy := copyObj.(*crv1.PgUpgrade)
-	exampleCopy.Status = crv1.PgUpgradeStatus{
-		State:   crv1.PgUpgradeStateProcessed,
-		Message: "Successfully processed PgUpgrade by controller",
+	exampleCopy := copyObj.(*crv1.Pgupgrade)
+	exampleCopy.Status = crv1.PgupgradeStatus{
+		State:   crv1.PgupgradeStateProcessed,
+		Message: "Successfully processed Pgupgrade by controller",
 	}
 
-	err = c.PgUpgradeClient.Put().
+	err = c.PgupgradeClient.Put().
 		Name(example.ObjectMeta.Name).
 		Namespace(example.ObjectMeta.Namespace).
-		Resource(crv1.PgUpgradeResourcePlural).
+		Resource(crv1.PgupgradeResourcePlural).
 		Body(exampleCopy).
 		Do().
 		Error()
@@ -97,14 +97,14 @@ func (c *PgUpgradeController) onAdd(obj interface{}) {
 	}
 }
 
-func (c *PgUpgradeController) onUpdate(oldObj, newObj interface{}) {
-	oldExample := oldObj.(*crv1.PgUpgrade)
-	newExample := newObj.(*crv1.PgUpgrade)
-	fmt.Printf("[PgUpgradeCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
-	fmt.Printf("[PgUpgradeCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
+func (c *PgupgradeController) onUpdate(oldObj, newObj interface{}) {
+	oldExample := oldObj.(*crv1.Pgupgrade)
+	newExample := newObj.(*crv1.Pgupgrade)
+	fmt.Printf("[PgupgradeCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
+	fmt.Printf("[PgupgradeCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
 }
 
-func (c *PgUpgradeController) onDelete(obj interface{}) {
-	example := obj.(*crv1.PgUpgrade)
-	fmt.Printf("[PgUpgradeCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
+func (c *PgupgradeController) onDelete(obj interface{}) {
+	example := obj.(*crv1.Pgupgrade)
+	fmt.Printf("[PgupgradeCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
 }

@@ -82,9 +82,9 @@ func showBackup(args []string) {
 func showBackupInfo(name string) {
 	fmt.Println("\nbackup information for " + name + "...")
 	//print the pgbackups TPR if it exists
-	result := crv1.PgBackup{}
+	result := crv1.Pgbackup{}
 	err := RestClient.Get().
-		Resource(crv1.PgBackupResourcePlural).
+		Resource(crv1.PgbackupResourcePlural).
 		Namespace(Namespace).
 		Name(name).
 		Do().
@@ -133,7 +133,7 @@ func showBackupInfo(name string) {
 	}
 }
 
-func printBackupTPR(result *crv1.PgBackup) {
+func printBackupTPR(result *crv1.Pgbackup) {
 	fmt.Printf("%s%s\n", "", "")
 	fmt.Printf("%s%s\n", "", "pgbackup : "+result.Spec.Name)
 
@@ -153,7 +153,7 @@ func createBackup(args []string) {
 	log.Debugf("createBackup called %v\n", args)
 
 	var err error
-	var newInstance *crv1.PgBackup
+	var newInstance *crv1.Pgbackup
 
 	if Selector != "" {
 		//use the selector instead of an argument list to filter on
@@ -165,9 +165,9 @@ func createBackup(args []string) {
 		}
 
 		//get the clusters list
-		clusterList := crv1.PgClusterList{}
+		clusterList := crv1.PgclusterList{}
 		err = RestClient.Get().
-			Resource(crv1.PgClusterResourcePlural).
+			Resource(crv1.PgclusterResourcePlural).
 			Namespace(Namespace).
 			LabelsSelectorParam(myselector).
 			Do().
@@ -191,11 +191,11 @@ func createBackup(args []string) {
 
 	for _, arg := range args {
 		log.Debug("create backup called for " + arg)
-		result := crv1.PgBackup{}
+		result := crv1.Pgbackup{}
 
 		// error if it already exists
 		err = RestClient.Get().
-			Resource(crv1.PgBackupResourcePlural).
+			Resource(crv1.PgbackupResourcePlural).
 			Namespace(Namespace).
 			Name(arg).
 			Do().
@@ -221,15 +221,15 @@ func createBackup(args []string) {
 		}
 
 		err = RestClient.Post().
-			Resource(crv1.PgBackupResourcePlural).
+			Resource(crv1.PgbackupResourcePlural).
 			Namespace(Namespace).
 			Body(newInstance).
 			Do().Into(&result)
 		if err != nil {
-			log.Error("error in creating PgBackup TPR instance")
+			log.Error("error in creating Pgbackup TPR instance")
 			log.Error(err.Error())
 		}
-		fmt.Println("created PgBackup " + arg)
+		fmt.Println("created Pgbackup " + arg)
 
 	}
 
@@ -238,8 +238,8 @@ func createBackup(args []string) {
 func deleteBackup(args []string) {
 	log.Debugf("deleteBackup called %v\n", args)
 	var err error
-	backupList := crv1.PgBackupList{}
-	err = RestClient.Get().Resource(crv1.PgBackupResourcePlural).Do().Into(&backupList)
+	backupList := crv1.PgbackupList{}
+	err = RestClient.Get().Resource(crv1.PgbackupResourcePlural).Do().Into(&backupList)
 	if err != nil {
 		log.Error("error getting backup list")
 		log.Error(err.Error())
@@ -253,7 +253,7 @@ func deleteBackup(args []string) {
 			if arg == "all" || backup.Spec.Name == arg {
 				backupFound = true
 				err = RestClient.Delete().
-					Resource(crv1.PgBackupResourcePlural).
+					Resource(crv1.PgbackupResourcePlural).
 					Namespace(Namespace).
 					Name(backup.Spec.Name).
 					Do().
@@ -274,11 +274,11 @@ func deleteBackup(args []string) {
 
 }
 
-func getBackupParams(name string) (*crv1.PgBackup, error) {
-	var newInstance *crv1.PgBackup
+func getBackupParams(name string) (*crv1.Pgbackup, error) {
+	var newInstance *crv1.Pgbackup
 
 	storageSpec := crv1.PgStorageSpec{}
-	spec := crv1.PgBackupSpec{}
+	spec := crv1.PgbackupSpec{}
 	spec.Name = name
 	spec.StorageSpec = storageSpec
 	spec.StorageSpec.PvcName = viper.GetString("BACKUP_STORAGE.PVC_NAME")
@@ -295,9 +295,9 @@ func getBackupParams(name string) (*crv1.PgBackup, error) {
 	spec.BACKUP_PASS = "password"
 	spec.BACKUP_PORT = "5432"
 
-	cluster := crv1.PgCluster{}
+	cluster := crv1.Pgcluster{}
 	err := RestClient.Get().
-		Resource(crv1.PgClusterResourcePlural).
+		Resource(crv1.PgclusterResourcePlural).
 		Namespace(Namespace).
 		Name(name).
 		Do().
@@ -317,7 +317,7 @@ func getBackupParams(name string) (*crv1.PgBackup, error) {
 		return newInstance, err
 	}
 
-	newInstance = &crv1.PgBackup{
+	newInstance = &crv1.Pgbackup{
 		ObjectMeta: meta_v1.ObjectMeta{
 			Name: name,
 		},

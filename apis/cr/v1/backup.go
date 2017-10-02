@@ -19,9 +19,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const PgBackupResourcePlural = "pgbackups"
+const PgbackupResourcePlural = "pgbackups"
 
-type PgBackupSpec struct {
+type PgbackupSpec struct {
 	Name          string        `json:"name"`
 	StorageSpec   PgStorageSpec `json:"storagespec"`
 	CCP_IMAGE_TAG string        `json:"ccpimagetag"`
@@ -32,29 +32,29 @@ type PgBackupSpec struct {
 	BACKUP_STATUS string        `json:"backupstatus"`
 }
 
-type PgBackup struct {
-	metav1.TypeMeta `json:",inline"`
-	ObjectMeta      metav1.ObjectMeta `json:"metadata"`
+type Pgbackup struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
 
-	Spec   PgBackupSpec   `json:"spec"`
-	Status PgBackupStatus `json:"status,omitempty"`
+	Spec   PgbackupSpec   `json:"spec"`
+	Status PgbackupStatus `json:"status,omitempty"`
 }
 
-type PgBackupList struct {
+type PgbackupList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 
-	Items []PgBackup `json:"items"`
+	Items []Pgbackup `json:"items"`
 }
 
-type PgBackupStatus struct {
-	State   PgBackupState `json:"state,omitempty"`
+type PgbackupStatus struct {
+	State   PgbackupState `json:"state,omitempty"`
 	Message string        `json:"message,omitempty"`
 }
 
-type PgBackupState string
+type PgbackupState string
 
 const (
-	PgBackupStateCreated   PgBackupState = "Created"
-	PgBackupStateProcessed PgBackupState = "Processed"
+	PgbackupStateCreated   PgbackupState = "Created"
+	PgbackupStateProcessed PgbackupState = "Processed"
 )

@@ -223,7 +223,7 @@ func GetLabelsFromMap(labels map[string]string) string {
 	return output
 }
 
-func PatchClusterTPR(restclient *rest.RESTClient, labelMap map[string]string, oldCrd *crv1.PgCluster, namespace string) error {
+func PatchClusterTPR(restclient *rest.RESTClient, labelMap map[string]string, oldCrd *crv1.Pgcluster, namespace string) error {
 
 	oldData, err := json.Marshal(oldCrd)
 	if err != nil {
@@ -252,7 +252,7 @@ func PatchClusterTPR(restclient *rest.RESTClient, labelMap map[string]string, ol
 
 	_, err6 := restclient.Patch(types.MergePatchType).
 		Namespace(namespace).
-		Resource(crv1.PgClusterResourcePlural).
+		Resource(crv1.PgclusterResourcePlural).
 		Name(oldCrd.Spec.Name).
 		Body(patchBytes).
 		Do().

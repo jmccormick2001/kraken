@@ -14,19 +14,19 @@ import (
 )
 
 // Watcher is an example of watching on resource create/update/delete events
-type PgPolicylogController struct {
-	PgPolicylogClient *rest.RESTClient
-	PgPolicylogScheme *runtime.Scheme
+type PgpolicylogController struct {
+	PgpolicylogClient *rest.RESTClient
+	PgpolicylogScheme *runtime.Scheme
 }
 
 // Run starts an Example resource controller
-func (c *PgPolicylogController) Run(ctx context.Context) error {
-	fmt.Print("Watch PgPolicylog objects\n")
+func (c *PgpolicylogController) Run(ctx context.Context) error {
+	fmt.Print("Watch Pgpolicylog objects\n")
 
 	// Watch Example objects
-	_, err := c.watchPgPolicylogs(ctx)
+	_, err := c.watchPgpolicylogs(ctx)
 	if err != nil {
-		fmt.Printf("Failed to register watch for PgPolicylog resource: %v\n", err)
+		fmt.Printf("Failed to register watch for Pgpolicylog resource: %v\n", err)
 		return err
 	}
 
@@ -34,10 +34,10 @@ func (c *PgPolicylogController) Run(ctx context.Context) error {
 	return ctx.Err()
 }
 
-func (c *PgPolicylogController) watchPgPolicylogs(ctx context.Context) (cache.Controller, error) {
+func (c *PgpolicylogController) watchPgpolicylogs(ctx context.Context) (cache.Controller, error) {
 	source := cache.NewListWatchFromClient(
-		c.PgPolicylogClient,
-		crv1.PgPolicylogResourcePlural,
+		c.PgpolicylogClient,
+		crv1.PgpolicylogResourcePlural,
 		apiv1.NamespaceAll,
 		fields.Everything())
 
@@ -45,7 +45,7 @@ func (c *PgPolicylogController) watchPgPolicylogs(ctx context.Context) (cache.Co
 		source,
 
 		// The object type.
-		&crv1.PgPolicylog{},
+		&crv1.Pgpolicylog{},
 
 		// resyncPeriod
 		// Every resyncPeriod, all resources in the cache will retrigger events.
@@ -63,29 +63,29 @@ func (c *PgPolicylogController) watchPgPolicylogs(ctx context.Context) (cache.Co
 	return controller, nil
 }
 
-func (c *PgPolicylogController) onAdd(obj interface{}) {
-	example := obj.(*crv1.PgPolicylog)
-	fmt.Printf("[PgPolicylogCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
+func (c *PgpolicylogController) onAdd(obj interface{}) {
+	example := obj.(*crv1.Pgpolicylog)
+	fmt.Printf("[PgpolicylogCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
 
 	// NEVER modify objects from the store. It's a read-only, local cache.
 	// You can use exampleScheme.Copy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
-	copyObj, err := c.PgPolicylogScheme.Copy(example)
+	copyObj, err := c.PgpolicylogScheme.Copy(example)
 	if err != nil {
 		fmt.Printf("ERROR creating a deep copy of example object: %v\n", err)
 		return
 	}
 
-	exampleCopy := copyObj.(*crv1.PgPolicylog)
-	exampleCopy.Status = crv1.PgPolicylogStatus{
-		State:   crv1.PgPolicylogStateProcessed,
-		Message: "Successfully processed PgPolicylog by controller",
+	exampleCopy := copyObj.(*crv1.Pgpolicylog)
+	exampleCopy.Status = crv1.PgpolicylogStatus{
+		State:   crv1.PgpolicylogStateProcessed,
+		Message: "Successfully processed Pgpolicylog by controller",
 	}
 
-	err = c.PgPolicylogClient.Put().
+	err = c.PgpolicylogClient.Put().
 		Name(example.ObjectMeta.Name).
 		Namespace(example.ObjectMeta.Namespace).
-		Resource(crv1.PgPolicylogResourcePlural).
+		Resource(crv1.PgpolicylogResourcePlural).
 		Body(exampleCopy).
 		Do().
 		Error()
@@ -97,14 +97,14 @@ func (c *PgPolicylogController) onAdd(obj interface{}) {
 	}
 }
 
-func (c *PgPolicylogController) onUpdate(oldObj, newObj interface{}) {
-	oldExample := oldObj.(*crv1.PgPolicylog)
-	newExample := newObj.(*crv1.PgPolicylog)
-	fmt.Printf("[PgPolicylogCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
-	fmt.Printf("[PgPolicylogCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
+func (c *PgpolicylogController) onUpdate(oldObj, newObj interface{}) {
+	oldExample := oldObj.(*crv1.Pgpolicylog)
+	newExample := newObj.(*crv1.Pgpolicylog)
+	fmt.Printf("[PgpolicylogCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
+	fmt.Printf("[PgpolicylogCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
 }
 
-func (c *PgPolicylogController) onDelete(obj interface{}) {
-	example := obj.(*crv1.PgPolicylog)
-	fmt.Printf("[PgPolicylogCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
+func (c *PgpolicylogController) onDelete(obj interface{}) {
+	example := obj.(*crv1.Pgpolicylog)
+	fmt.Printf("[PgpolicylogCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
 }

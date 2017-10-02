@@ -86,9 +86,9 @@ func showUpgrade(args []string) {
 	for _, arg := range args {
 		log.Debug("show upgrade called for " + arg)
 		if arg == "all" {
-			crv1s := crv1.PgUpgradeList{}
+			crv1s := crv1.PgupgradeList{}
 			err = RestClient.Get().
-				Resource(crv1.PgUpgradeResourcePlural).
+				Resource(crv1.PgupgradeResourcePlural).
 				Namespace(Namespace).
 				Do().Into(&crv1s)
 			if err != nil {
@@ -100,10 +100,10 @@ func showUpgrade(args []string) {
 			}
 
 		} else {
-			var upgrade crv1.PgUpgrade
+			var upgrade crv1.Pgupgrade
 
 			err = RestClient.Get().
-				Resource(crv1.PgUpgradeResourcePlural).
+				Resource(crv1.PgupgradeResourcePlural).
 				Namespace(Namespace).
 				Name(arg).
 				Do().Into(&upgrade)
@@ -119,7 +119,7 @@ func showUpgrade(args []string) {
 
 }
 
-func showUpgradeItem(upgrade *crv1.PgUpgrade) {
+func showUpgradeItem(upgrade *crv1.Pgupgrade) {
 
 	//print the TPR
 	fmt.Printf("%s%s\n", "", "")
@@ -164,7 +164,7 @@ func createUpgrade(args []string) {
 	log.Debugf("createUpgrade called %v\n", args)
 
 	var err error
-	var newInstance *crv1.PgUpgrade
+	var newInstance *crv1.Pgupgrade
 
 	if Selector != "" {
 		//use the selector instead of an argument list to filter on
@@ -176,9 +176,9 @@ func createUpgrade(args []string) {
 		}
 
 		//get the clusters list
-		clusterList := crv1.PgClusterList{}
+		clusterList := crv1.PgclusterList{}
 		err = RestClient.Get().
-			Resource(crv1.PgClusterResourcePlural).
+			Resource(crv1.PgclusterResourcePlural).
 			Namespace(Namespace).
 			LabelsSelectorParam(myselector).
 			Do().
@@ -202,11 +202,11 @@ func createUpgrade(args []string) {
 
 	for _, arg := range args {
 		log.Debug("create upgrade called for " + arg)
-		result := crv1.PgUpgrade{}
+		result := crv1.Pgupgrade{}
 
 		// error if it already exists
 		err = RestClient.Get().
-			Resource(crv1.PgUpgradeResourcePlural).
+			Resource(crv1.PgupgradeResourcePlural).
 			Namespace(Namespace).
 			Name(arg).
 			Do().
@@ -224,10 +224,10 @@ func createUpgrade(args []string) {
 			break
 		}
 
-		cl := crv1.PgCluster{}
+		cl := crv1.Pgcluster{}
 
 		err = RestClient.Get().
-			Resource(crv1.PgClusterResourcePlural).
+			Resource(crv1.PgclusterResourcePlural).
 			Namespace(Namespace).
 			Name(arg).
 			Do().
@@ -246,14 +246,14 @@ func createUpgrade(args []string) {
 		newInstance, err = getUpgradeParams(arg)
 		if err == nil {
 			err = RestClient.Post().
-				Resource(crv1.PgUpgradeResourcePlural).
+				Resource(crv1.PgupgradeResourcePlural).
 				Namespace(Namespace).
 				Body(newInstance).
 				Do().Into(&result)
 			if err != nil {
-				log.Error("error in creating PgUpgrade TPR instance", err.Error())
+				log.Error("error in creating Pgupgrade TPR instance", err.Error())
 			} else {
-				fmt.Println("created PgUpgrade " + arg)
+				fmt.Println("created Pgupgrade " + arg)
 			}
 		}
 
@@ -264,8 +264,8 @@ func createUpgrade(args []string) {
 func deleteUpgrade(args []string) {
 	log.Debugf("deleteUpgrade called %v\n", args)
 	var err error
-	upgradeList := crv1.PgUpgradeList{}
-	err = RestClient.Get().Resource(crv1.PgUpgradeResourcePlural).Do().Into(&upgradeList)
+	upgradeList := crv1.PgupgradeList{}
+	err = RestClient.Get().Resource(crv1.PgupgradeResourcePlural).Do().Into(&upgradeList)
 	if err != nil {
 		log.Error("error getting upgrade list")
 		log.Error(err.Error())
@@ -279,7 +279,7 @@ func deleteUpgrade(args []string) {
 			if arg == "all" || upgrade.Spec.Name == arg {
 				upgradeFound = true
 				err = RestClient.Delete().
-					Resource(crv1.PgUpgradeResourcePlural).
+					Resource(crv1.PgupgradeResourcePlural).
 					Namespace(Namespace).
 					Name(upgrade.Spec.Name).
 					Do().
@@ -299,13 +299,13 @@ func deleteUpgrade(args []string) {
 
 }
 
-func getUpgradeParams(name string) (*crv1.PgUpgrade, error) {
+func getUpgradeParams(name string) (*crv1.Pgupgrade, error) {
 
 	var err error
 	var existingImage string
 	var existingMajorVersion float64
 
-	spec := crv1.PgUpgradeSpec{
+	spec := crv1.PgupgradeSpec{
 		Name:              name,
 		RESOURCE_TYPE:     "cluster",
 		UPGRADE_TYPE:      UpgradeType,
@@ -327,9 +327,9 @@ func getUpgradeParams(name string) (*crv1.PgUpgrade, error) {
 		spec.CCP_IMAGE_TAG = CCP_IMAGE_TAG
 	}
 
-	cluster := crv1.PgCluster{}
+	cluster := crv1.Pgcluster{}
 	err = RestClient.Get().
-		Resource(crv1.PgClusterResourcePlural).
+		Resource(crv1.PgclusterResourcePlural).
 		Namespace(Namespace).
 		Name(name).
 		Do().
@@ -387,7 +387,7 @@ func getUpgradeParams(name string) (*crv1.PgUpgrade, error) {
 		}
 	}
 
-	newInstance := &crv1.PgUpgrade{
+	newInstance := &crv1.Pgupgrade{
 		ObjectMeta: meta_v1.ObjectMeta{
 			Name: name,
 		},

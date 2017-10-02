@@ -14,19 +14,19 @@ import (
 )
 
 // Watcher is an example of watching on resource create/update/delete events
-type PgBackupController struct {
-	PgBackupClient *rest.RESTClient
-	PgBackupScheme *runtime.Scheme
+type PgbackupController struct {
+	PgbackupClient *rest.RESTClient
+	PgbackupScheme *runtime.Scheme
 }
 
 // Run starts an Example resource controller
-func (c *PgBackupController) Run(ctx context.Context) error {
-	fmt.Print("Watch PgBackup objects\n")
+func (c *PgbackupController) Run(ctx context.Context) error {
+	fmt.Print("Watch Pgbackup objects\n")
 
 	// Watch Example objects
-	_, err := c.watchPgBackups(ctx)
+	_, err := c.watchPgbackups(ctx)
 	if err != nil {
-		fmt.Printf("Failed to register watch for PgBackup resource: %v\n", err)
+		fmt.Printf("Failed to register watch for Pgbackup resource: %v\n", err)
 		return err
 	}
 
@@ -34,10 +34,10 @@ func (c *PgBackupController) Run(ctx context.Context) error {
 	return ctx.Err()
 }
 
-func (c *PgBackupController) watchPgBackups(ctx context.Context) (cache.Controller, error) {
+func (c *PgbackupController) watchPgbackups(ctx context.Context) (cache.Controller, error) {
 	source := cache.NewListWatchFromClient(
-		c.PgBackupClient,
-		crv1.PgBackupResourcePlural,
+		c.PgbackupClient,
+		crv1.PgbackupResourcePlural,
 		apiv1.NamespaceAll,
 		fields.Everything())
 
@@ -45,7 +45,7 @@ func (c *PgBackupController) watchPgBackups(ctx context.Context) (cache.Controll
 		source,
 
 		// The object type.
-		&crv1.PgBackup{},
+		&crv1.Pgbackup{},
 
 		// resyncPeriod
 		// Every resyncPeriod, all resources in the cache will retrigger events.
@@ -63,29 +63,29 @@ func (c *PgBackupController) watchPgBackups(ctx context.Context) (cache.Controll
 	return controller, nil
 }
 
-func (c *PgBackupController) onAdd(obj interface{}) {
-	example := obj.(*crv1.PgBackup)
-	fmt.Printf("[PgBackupCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
+func (c *PgbackupController) onAdd(obj interface{}) {
+	example := obj.(*crv1.Pgbackup)
+	fmt.Printf("[PgbackupCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
 
 	// NEVER modify objects from the store. It's a read-only, local cache.
 	// You can use exampleScheme.Copy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
-	copyObj, err := c.PgBackupScheme.Copy(example)
+	copyObj, err := c.PgbackupScheme.Copy(example)
 	if err != nil {
 		fmt.Printf("ERROR creating a deep copy of example object: %v\n", err)
 		return
 	}
 
-	exampleCopy := copyObj.(*crv1.PgBackup)
-	exampleCopy.Status = crv1.PgBackupStatus{
-		State:   crv1.PgBackupStateProcessed,
-		Message: "Successfully processed PgBackup by controller",
+	exampleCopy := copyObj.(*crv1.Pgbackup)
+	exampleCopy.Status = crv1.PgbackupStatus{
+		State:   crv1.PgbackupStateProcessed,
+		Message: "Successfully processed Pgbackup by controller",
 	}
 
-	err = c.PgBackupClient.Put().
+	err = c.PgbackupClient.Put().
 		Name(example.ObjectMeta.Name).
 		Namespace(example.ObjectMeta.Namespace).
-		Resource(crv1.PgBackupResourcePlural).
+		Resource(crv1.PgbackupResourcePlural).
 		Body(exampleCopy).
 		Do().
 		Error()
@@ -97,14 +97,14 @@ func (c *PgBackupController) onAdd(obj interface{}) {
 	}
 }
 
-func (c *PgBackupController) onUpdate(oldObj, newObj interface{}) {
-	oldExample := oldObj.(*crv1.PgBackup)
-	newExample := newObj.(*crv1.PgBackup)
-	fmt.Printf("[PgBackupCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
-	fmt.Printf("[PgBackupCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
+func (c *PgbackupController) onUpdate(oldObj, newObj interface{}) {
+	oldExample := oldObj.(*crv1.Pgbackup)
+	newExample := newObj.(*crv1.Pgbackup)
+	fmt.Printf("[PgbackupCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
+	fmt.Printf("[PgbackupCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
 }
 
-func (c *PgBackupController) onDelete(obj interface{}) {
-	example := obj.(*crv1.PgBackup)
-	fmt.Printf("[PgBackupCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
+func (c *PgbackupController) onDelete(obj interface{}) {
+	example := obj.(*crv1.Pgbackup)
+	fmt.Printf("[PgbackupCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
 }

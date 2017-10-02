@@ -33,9 +33,9 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
-const upgradeCRDName = crv1.PgUpgradeResourcePlural + "." + crv1.GroupName
+const upgradeCRDName = crv1.PgupgradeResourcePlural + "." + crv1.GroupName
 
-func PgUpgradeCreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*apiextensionsv1beta1.CustomResourceDefinition, error) {
+func PgupgradeCreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*apiextensionsv1beta1.CustomResourceDefinition, error) {
 	crd := &apiextensionsv1beta1.CustomResourceDefinition{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: upgradeCRDName,
@@ -45,8 +45,8 @@ func PgUpgradeCreateCustomResourceDefinition(clientset apiextensionsclient.Inter
 			Version: crv1.SchemeGroupVersion.Version,
 			Scope:   apiextensionsv1beta1.NamespaceScoped,
 			Names: apiextensionsv1beta1.CustomResourceDefinitionNames{
-				Plural: crv1.PgUpgradeResourcePlural,
-				Kind:   reflect.TypeOf(crv1.PgUpgrade{}).Name(),
+				Plural: crv1.PgupgradeResourcePlural,
+				Kind:   reflect.TypeOf(crv1.Pgupgrade{}).Name(),
 			},
 		},
 	}
@@ -85,16 +85,16 @@ func PgUpgradeCreateCustomResourceDefinition(clientset apiextensionsclient.Inter
 	return crd, nil
 }
 
-func WaitForPgUpgradeInstanceProcessed(exampleClient *rest.RESTClient, name string) error {
+func WaitForPgupgradeInstanceProcessed(exampleClient *rest.RESTClient, name string) error {
 	return wait.Poll(100*time.Millisecond, 10*time.Second, func() (bool, error) {
-		var upgrade crv1.PgUpgrade
+		var upgrade crv1.Pgupgrade
 		err := exampleClient.Get().
-			Resource(crv1.PgUpgradeResourcePlural).
+			Resource(crv1.PgupgradeResourcePlural).
 			Namespace(apiv1.NamespaceDefault).
 			Name(name).
 			Do().Into(&upgrade)
 
-		if err == nil && upgrade.Status.State == crv1.PgUpgradeStateProcessed {
+		if err == nil && upgrade.Status.State == crv1.PgupgradeStateProcessed {
 			return true, nil
 		}
 

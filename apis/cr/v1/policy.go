@@ -19,38 +19,38 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const PgPolicyResourcePlural = "pgpolicies"
+const PgpolicyResourcePlural = "pgpolicies"
 
-type PgPolicySpec struct {
+type PgpolicySpec struct {
 	Name   string `json:"name"`
 	Url    string `json:"url"`
 	Sql    string `json:"sql"`
 	Status string `json:"status"`
 }
 
-type PgPolicy struct {
-	metav1.TypeMeta `json:",inline"`
-	ObjectMeta      metav1.ObjectMeta `json:"metadata"`
+type Pgpolicy struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
 
-	Spec   PgPolicySpec   `json:"spec"`
-	Status PgPolicyStatus `json:"status,omitempty"`
+	Spec   PgpolicySpec   `json:"spec"`
+	Status PgpolicyStatus `json:"status,omitempty"`
 }
 
-type PgPolicyList struct {
+type PgpolicyList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 
-	Items []PgPolicy `json:"items"`
+	Items []Pgpolicy `json:"items"`
 }
 
-type PgPolicyStatus struct {
-	State   PgPolicyState `json:"state,omitempty"`
+type PgpolicyStatus struct {
+	State   PgpolicyState `json:"state,omitempty"`
 	Message string        `json:"message,omitempty"`
 }
 
-type PgPolicyState string
+type PgpolicyState string
 
 const (
-	PgPolicyStateCreated   PgPolicyState = "Created"
-	PgPolicyStateProcessed PgPolicyState = "Processed"
+	PgpolicyStateCreated   PgpolicyState = "Created"
+	PgpolicyStateProcessed PgpolicyState = "Processed"
 )

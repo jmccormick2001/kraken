@@ -33,9 +33,9 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
-const policylogCRDName = crv1.PgPolicylogResourcePlural + "." + crv1.GroupName
+const policylogCRDName = crv1.PgpolicylogResourcePlural + "." + crv1.GroupName
 
-func PgPolicylogCreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*apiextensionsv1beta1.CustomResourceDefinition, error) {
+func PgpolicylogCreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*apiextensionsv1beta1.CustomResourceDefinition, error) {
 	crd := &apiextensionsv1beta1.CustomResourceDefinition{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: policylogCRDName,
@@ -45,8 +45,8 @@ func PgPolicylogCreateCustomResourceDefinition(clientset apiextensionsclient.Int
 			Version: crv1.SchemeGroupVersion.Version,
 			Scope:   apiextensionsv1beta1.NamespaceScoped,
 			Names: apiextensionsv1beta1.CustomResourceDefinitionNames{
-				Plural: crv1.PgPolicylogResourcePlural,
-				Kind:   reflect.TypeOf(crv1.PgPolicylog{}).Name(),
+				Plural: crv1.PgpolicylogResourcePlural,
+				Kind:   reflect.TypeOf(crv1.Pgpolicylog{}).Name(),
 			},
 		},
 	}
@@ -85,16 +85,16 @@ func PgPolicylogCreateCustomResourceDefinition(clientset apiextensionsclient.Int
 	return crd, nil
 }
 
-func WaitForPgPolicylogInstanceProcessed(exampleClient *rest.RESTClient, name string) error {
+func WaitForPgpolicylogInstanceProcessed(exampleClient *rest.RESTClient, name string) error {
 	return wait.Poll(100*time.Millisecond, 10*time.Second, func() (bool, error) {
-		var policylog crv1.PgPolicylog
+		var policylog crv1.Pgpolicylog
 		err := exampleClient.Get().
-			Resource(crv1.PgPolicylogResourcePlural).
+			Resource(crv1.PgpolicylogResourcePlural).
 			Namespace(apiv1.NamespaceDefault).
 			Name(name).
 			Do().Into(&policylog)
 
-		if err == nil && policylog.Status.State == crv1.PgPolicylogStateProcessed {
+		if err == nil && policylog.Status.State == crv1.PgpolicylogStateProcessed {
 			return true, nil
 		}
 

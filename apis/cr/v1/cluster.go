@@ -19,16 +19,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const PgClusterResourcePlural = "pgclusters"
+const PgclusterResourcePlural = "pgclusters"
 
-type PgCluster struct {
-	metav1.TypeMeta `json:",inline"`
-	ObjectMeta      metav1.ObjectMeta `json:"metadata"`
-	Spec            PgClusterSpec     `json:"spec"`
-	Status          PgClusterStatus   `json:"status,omitempty"`
+type Pgcluster struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
+	Spec              PgclusterSpec   `json:"spec"`
+	Status            PgclusterStatus `json:"status,omitempty"`
 }
 
-type PgClusterSpec struct {
+//anonymous struct field usage somecluster.metav1.ObjectMeta = foo
+
+type PgclusterSpec struct {
 	Name                  string            `json:"name"`
 	ClusterName           string            `json:"clustername"`
 	Policies              string            `json:"policies"`
@@ -58,21 +60,21 @@ type PgClusterSpec struct {
 	UserLabels            map[string]string `json:"userlabels"`
 }
 
-type PgClusterList struct {
+type PgclusterList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 
-	Items []PgCluster `json:"items"`
+	Items []Pgcluster `json:"items"`
 }
 
-type PgClusterStatus struct {
-	State   PgClusterState `json:"state,omitempty"`
+type PgclusterStatus struct {
+	State   PgclusterState `json:"state,omitempty"`
 	Message string         `json:"message,omitempty"`
 }
 
-type PgClusterState string
+type PgclusterState string
 
 const (
-	PgClusterStateCreated   PgClusterState = "Created"
-	PgClusterStateProcessed PgClusterState = "Processed"
+	PgclusterStateCreated   PgclusterState = "Created"
+	PgclusterStateProcessed PgclusterState = "Processed"
 )

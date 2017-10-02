@@ -14,19 +14,19 @@ import (
 )
 
 // Watcher is an example of watching on resource create/update/delete events
-type PgPolicyController struct {
-	PgPolicyClient *rest.RESTClient
-	PgPolicyScheme *runtime.Scheme
+type PgpolicyController struct {
+	PgpolicyClient *rest.RESTClient
+	PgpolicyScheme *runtime.Scheme
 }
 
 // Run starts an Example resource controller
-func (c *PgPolicyController) Run(ctx context.Context) error {
-	fmt.Print("Watch PgPolicy objects\n")
+func (c *PgpolicyController) Run(ctx context.Context) error {
+	fmt.Print("Watch Pgpolicy objects\n")
 
 	// Watch Example objects
-	_, err := c.watchPgPolicys(ctx)
+	_, err := c.watchPgpolicys(ctx)
 	if err != nil {
-		fmt.Printf("Failed to register watch for PgPolicy resource: %v\n", err)
+		fmt.Printf("Failed to register watch for Pgpolicy resource: %v\n", err)
 		return err
 	}
 
@@ -34,10 +34,10 @@ func (c *PgPolicyController) Run(ctx context.Context) error {
 	return ctx.Err()
 }
 
-func (c *PgPolicyController) watchPgPolicys(ctx context.Context) (cache.Controller, error) {
+func (c *PgpolicyController) watchPgpolicys(ctx context.Context) (cache.Controller, error) {
 	source := cache.NewListWatchFromClient(
-		c.PgPolicyClient,
-		crv1.PgPolicyResourcePlural,
+		c.PgpolicyClient,
+		crv1.PgpolicyResourcePlural,
 		apiv1.NamespaceAll,
 		fields.Everything())
 
@@ -45,7 +45,7 @@ func (c *PgPolicyController) watchPgPolicys(ctx context.Context) (cache.Controll
 		source,
 
 		// The object type.
-		&crv1.PgPolicy{},
+		&crv1.Pgpolicy{},
 
 		// resyncPeriod
 		// Every resyncPeriod, all resources in the cache will retrigger events.
@@ -63,29 +63,29 @@ func (c *PgPolicyController) watchPgPolicys(ctx context.Context) (cache.Controll
 	return controller, nil
 }
 
-func (c *PgPolicyController) onAdd(obj interface{}) {
-	example := obj.(*crv1.PgPolicy)
-	fmt.Printf("[PgPolicyCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
+func (c *PgpolicyController) onAdd(obj interface{}) {
+	example := obj.(*crv1.Pgpolicy)
+	fmt.Printf("[PgpolicyCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
 
 	// NEVER modify objects from the store. It's a read-only, local cache.
 	// You can use exampleScheme.Copy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
-	copyObj, err := c.PgPolicyScheme.Copy(example)
+	copyObj, err := c.PgpolicyScheme.Copy(example)
 	if err != nil {
 		fmt.Printf("ERROR creating a deep copy of example object: %v\n", err)
 		return
 	}
 
-	exampleCopy := copyObj.(*crv1.PgPolicy)
-	exampleCopy.Status = crv1.PgPolicyStatus{
-		State:   crv1.PgPolicyStateProcessed,
-		Message: "Successfully processed PgPolicy by controller",
+	exampleCopy := copyObj.(*crv1.Pgpolicy)
+	exampleCopy.Status = crv1.PgpolicyStatus{
+		State:   crv1.PgpolicyStateProcessed,
+		Message: "Successfully processed Pgpolicy by controller",
 	}
 
-	err = c.PgPolicyClient.Put().
+	err = c.PgpolicyClient.Put().
 		Name(example.ObjectMeta.Name).
 		Namespace(example.ObjectMeta.Namespace).
-		Resource(crv1.PgPolicyResourcePlural).
+		Resource(crv1.PgpolicyResourcePlural).
 		Body(exampleCopy).
 		Do().
 		Error()
@@ -97,14 +97,14 @@ func (c *PgPolicyController) onAdd(obj interface{}) {
 	}
 }
 
-func (c *PgPolicyController) onUpdate(oldObj, newObj interface{}) {
-	oldExample := oldObj.(*crv1.PgPolicy)
-	newExample := newObj.(*crv1.PgPolicy)
-	fmt.Printf("[PgPolicyCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
-	fmt.Printf("[PgPolicyCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
+func (c *PgpolicyController) onUpdate(oldObj, newObj interface{}) {
+	oldExample := oldObj.(*crv1.Pgpolicy)
+	newExample := newObj.(*crv1.Pgpolicy)
+	fmt.Printf("[PgpolicyCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
+	fmt.Printf("[PgpolicyCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
 }
 
-func (c *PgPolicyController) onDelete(obj interface{}) {
-	example := obj.(*crv1.PgPolicy)
-	fmt.Printf("[PgPolicyCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
+func (c *PgpolicyController) onDelete(obj interface{}) {
+	example := obj.(*crv1.Pgpolicy)
+	fmt.Printf("[PgpolicyCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
 }

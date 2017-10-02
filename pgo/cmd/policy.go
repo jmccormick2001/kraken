@@ -31,9 +31,9 @@ import (
 
 func showPolicy(args []string) {
 	//get a list of all policies
-	policyList := crv1.PgPolicyList{}
+	policyList := crv1.PgpolicyList{}
 	err := RestClient.Get().
-		Resource(crv1.PgPolicyResourcePlural).
+		Resource(crv1.PgpolicyResourcePlural).
 		Namespace(Namespace).
 		Do().Into(&policyList)
 	if err != nil {
@@ -74,11 +74,11 @@ func createPolicy(args []string) {
 
 	for _, arg := range args {
 		log.Debug("create policy called for " + arg)
-		result := crv1.PgPolicy{}
+		result := crv1.Pgpolicy{}
 
 		// error if it already exists
 		err = RestClient.Get().
-			Resource(crv1.PgPolicyResourcePlural).
+			Resource(crv1.PgpolicyResourcePlural).
 			Namespace(Namespace).
 			Name(arg).
 			Do().
@@ -102,24 +102,24 @@ func createPolicy(args []string) {
 		}
 
 		err = RestClient.Post().
-			Resource(crv1.PgPolicyResourcePlural).
+			Resource(crv1.PgpolicyResourcePlural).
 			Namespace(Namespace).
 			Body(newInstance).
 			Do().Into(&result)
 
 		if err != nil {
-			log.Error(" in creating PgPolicy instance" + err.Error())
+			log.Error(" in creating Pgpolicy instance" + err.Error())
 		}
-		fmt.Println("created PgPolicy " + arg)
+		fmt.Println("created Pgpolicy " + arg)
 
 	}
 }
 
-func getPolicyParams(name string) (*crv1.PgPolicy, error) {
+func getPolicyParams(name string) (*crv1.Pgpolicy, error) {
 
 	var err error
 
-	spec := crv1.PgPolicySpec{}
+	spec := crv1.PgpolicySpec{}
 	spec.Name = name
 
 	if PolicyURL != "" {
@@ -129,11 +129,11 @@ func getPolicyParams(name string) (*crv1.PgPolicy, error) {
 		spec.Sql, err = getPolicyString(PolicyFile)
 
 		if err != nil {
-			return &crv1.PgPolicy{}, err
+			return &crv1.Pgpolicy{}, err
 		}
 	}
 
-	newInstance := &crv1.PgPolicy{
+	newInstance := &crv1.Pgpolicy{
 		ObjectMeta: meta_v1.ObjectMeta{
 			Name: name,
 		},
@@ -156,8 +156,8 @@ func getPolicyString(filename string) (string, error) {
 
 func deletePolicy(args []string) {
 	// Fetch a list of our policy TPRs
-	policyList := crv1.PgPolicyList{}
-	err := RestClient.Get().Resource(crv1.PgPolicyResourcePlural).Do().Into(&policyList)
+	policyList := crv1.PgpolicyList{}
+	err := RestClient.Get().Resource(crv1.PgpolicyResourcePlural).Do().Into(&policyList)
 	if err != nil {
 		log.Error("error getting policy list" + err.Error())
 		return
@@ -172,7 +172,7 @@ func deletePolicy(args []string) {
 			if arg == "all" || arg == policy.Spec.Name {
 				policyFound = true
 				err = RestClient.Delete().
-					Resource(crv1.PgPolicyResourcePlural).
+					Resource(crv1.PgpolicyResourcePlural).
 					Namespace(Namespace).
 					Name(policy.Spec.Name).
 					Do().
@@ -207,11 +207,11 @@ func validateConfigPolicies() error {
 	policies := strings.Split(configPolicies, ",")
 
 	for _, v := range policies {
-		result := crv1.PgPolicy{}
+		result := crv1.Pgpolicy{}
 
 		// error if it already exists
 		err = RestClient.Get().
-			Resource(crv1.PgPolicyResourcePlural).
+			Resource(crv1.PgpolicyResourcePlural).
 			Namespace(Namespace).
 			Name(v).
 			Do().
@@ -263,7 +263,7 @@ func applyPolicy(policies []string) {
 		return
 	}
 
-	var newInstance *crv1.PgPolicylog
+	var newInstance *crv1.Pgpolicylog
 	for _, d := range deployments.Items {
 		fmt.Println("deployment : " + d.ObjectMeta.Name)
 		for _, p := range policies {
@@ -271,9 +271,9 @@ func applyPolicy(policies []string) {
 
 			newInstance, err = getPolicylog(p, d.ObjectMeta.Name)
 
-			result := crv1.PgPolicylog{}
+			result := crv1.Pgpolicylog{}
 			err = RestClient.Get().
-				Resource(crv1.PgPolicyResourcePlural).
+				Resource(crv1.PgpolicyResourcePlural).
 				Namespace(Namespace).
 				Name(newInstance.ObjectMeta.Name).
 				Do().Into(&result)
@@ -288,16 +288,16 @@ func applyPolicy(policies []string) {
 				}
 			}
 
-			result = crv1.PgPolicylog{}
+			result = crv1.Pgpolicylog{}
 			err = RestClient.Post().
-				Resource(crv1.PgPolicyResourcePlural).
+				Resource(crv1.PgpolicyResourcePlural).
 				Namespace(Namespace).
 				Body(newInstance).
 				Do().Into(&result)
 			if err != nil {
-				log.Error("error in creating PgPolicylog TPR instance", err.Error())
+				log.Error("error in creating Pgpolicylog TPR instance", err.Error())
 			} else {
-				fmt.Println("created PgPolicylog " + result.ObjectMeta.Name)
+				fmt.Println("created Pgpolicylog " + result.ObjectMeta.Name)
 			}
 
 		}
@@ -306,18 +306,18 @@ func applyPolicy(policies []string) {
 
 }
 
-func getPolicylog(policyname, clustername string) (*crv1.PgPolicylog, error) {
+func getPolicylog(policyname, clustername string) (*crv1.Pgpolicylog, error) {
 	u, err := user.Current()
 	if err != nil {
 		log.Error(err.Error())
 	}
 
-	spec := crv1.PgPolicylogSpec{}
+	spec := crv1.PgpolicylogSpec{}
 	spec.PolicyName = policyname
 	spec.Username = u.Name
 	spec.ClusterName = clustername
 
-	newInstance := &crv1.PgPolicylog{
+	newInstance := &crv1.Pgpolicylog{
 		ObjectMeta: meta_v1.ObjectMeta{
 			Name: policyname + clustername,
 		},

@@ -38,7 +38,7 @@ import (
 func showCluster(args []string) {
 	var err error
 	//get a list of all clusters
-	clusterList := crv1.PgClusterList{}
+	clusterList := crv1.PgclusterList{}
 	myselector := labels.Everything()
 	log.Debug("selector is " + Labelselector)
 	if Labelselector != "" {
@@ -53,7 +53,7 @@ func showCluster(args []string) {
 
 	log.Debugf("label selector is [%v]\n", myselector)
 	err = RestClient.Get().
-		Resource(crv1.PgClusterResourcePlural).
+		Resource(crv1.PgclusterResourcePlural).
 		Namespace(v1.NamespaceDefault).
 		LabelsSelectorParam(myselector).
 		Do().
@@ -188,11 +188,11 @@ func createCluster(args []string) {
 				clusterName = arg + strconv.Itoa(i)
 			}
 			log.Debug("create cluster called for " + clusterName)
-			result := crv1.PgCluster{}
+			result := crv1.Pgcluster{}
 
 			// error if it already exists
 			err = RestClient.Get().
-				Resource(crv1.PgClusterResourcePlural).
+				Resource(crv1.PgclusterResourcePlural).
 				Namespace(v1.NamespaceDefault).
 				Name(clusterName).
 				Do().
@@ -223,22 +223,22 @@ func createCluster(args []string) {
 			newInstance.Spec.PSW_LAST_UPDATE = time.Now().String()
 
 			err = RestClient.Post().
-				Resource(crv1.PgClusterResourcePlural).
+				Resource(crv1.PgclusterResourcePlural).
 				Namespace(v1.NamespaceDefault).
 				Body(newInstance).
 				Do().Into(&result)
 			if err != nil {
-				log.Error(" in creating PgCluster instance" + err.Error())
+				log.Error(" in creating Pgcluster instance" + err.Error())
 			}
-			fmt.Println("created PgCluster " + clusterName)
+			fmt.Println("created Pgcluster " + clusterName)
 		}
 
 	}
 }
 
-func getClusterParams(name string) *crv1.PgCluster {
+func getClusterParams(name string) *crv1.Pgcluster {
 
-	spec := crv1.PgClusterSpec{}
+	spec := crv1.PgclusterSpec{}
 	masterStorageSpec := crv1.PgStorageSpec{}
 	spec.MasterStorage = masterStorageSpec
 	replicaStorageSpec := crv1.PgStorageSpec{}
@@ -327,12 +327,16 @@ func getClusterParams(name string) *crv1.PgCluster {
 	labels := make(map[string]string)
 	labels["name"] = name
 
-	newInstance := &crv1.PgCluster{
+	newInstance := &crv1.Pgcluster{
 		ObjectMeta: meta_v1.ObjectMeta{
 			Name:   name,
 			Labels: labels,
 		},
 		Spec: spec,
+		Status: crv1.PgclusterStatus{
+			State:   crv1.PgclusterStateCreated,
+			Message: "Created, not processed yet",
+		},
 	}
 	return newInstance
 }
@@ -342,7 +346,7 @@ func deleteCluster(args []string) {
 	var err error
 
 	// Fetch a list of our cluster TPRs
-	clusterList := crv1.PgClusterList{}
+	clusterList := crv1.PgclusterList{}
 	myselector := labels.Everything()
 
 	if Selector != "" {
@@ -356,7 +360,7 @@ func deleteCluster(args []string) {
 
 	//get the clusters list
 	err = RestClient.Get().
-		Resource(crv1.PgClusterResourcePlural).
+		Resource(crv1.PgclusterResourcePlural).
 		Namespace(v1.NamespaceDefault).
 		LabelsSelectorParam(myselector).
 		Do().
@@ -387,7 +391,7 @@ func deleteCluster(args []string) {
 			if arg == "all" || arg == cluster.Spec.Name {
 				clusterFound = true
 				err := RestClient.Delete().
-					Resource(crv1.PgClusterResourcePlural).
+					Resource(crv1.PgclusterResourcePlural).
 					Namespace(v1.NamespaceDefault).
 					Name(arg).
 					Do().

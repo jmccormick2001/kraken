@@ -19,9 +19,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const PgPolicylogResourcePlural = "pgpolicylogs"
+const PgpolicylogResourcePlural = "pgpolicylogs"
 
-type PgPolicylogSpec struct {
+type PgpolicylogSpec struct {
 	PolicyName  string `json:"policyname"`
 	Status      string `json:"status"`
 	ApplyDate   string `json:"applydate"`
@@ -30,30 +30,30 @@ type PgPolicylogSpec struct {
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-type PgPolicylog struct {
-	metav1.TypeMeta `json:",inline"`
-	ObjectMeta      metav1.ObjectMeta `json:"metadata"`
+type Pgpolicylog struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
 
-	Spec   PgPolicylogSpec   `json:"spec"`
-	Status PgPolicylogStatus `json:"status,omitempty"`
+	Spec   PgpolicylogSpec   `json:"spec"`
+	Status PgpolicylogStatus `json:"status,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-type PgPolicylogList struct {
+type PgpolicylogList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 
-	Items []PgPolicylog `json:"items"`
+	Items []Pgpolicylog `json:"items"`
 }
 
-type PgPolicylogStatus struct {
-	State   PgPolicylogState `json:"state,omitempty"`
+type PgpolicylogStatus struct {
+	State   PgpolicylogState `json:"state,omitempty"`
 	Message string           `json:"message,omitempty"`
 }
 
-type PgPolicylogState string
+type PgpolicylogState string
 
 const (
-	PgPolicylogStateCreated   PgPolicylogState = "Created"
-	PgPolicylogStateProcessed PgPolicylogState = "Processed"
+	PgpolicylogStateCreated   PgpolicylogState = "Created"
+	PgpolicylogStateProcessed PgpolicylogState = "Processed"
 )
