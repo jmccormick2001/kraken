@@ -7,16 +7,19 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 
 	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
+	//policycontroller "github.com/crunchydata/kraken/operator/policy"
 )
 
 // Watcher is an example of watching on resource create/update/delete events
 type PgpolicyController struct {
-	PgpolicyClient *rest.RESTClient
-	PgpolicyScheme *runtime.Scheme
+	PgpolicyClient    *rest.RESTClient
+	PgpolicyScheme    *runtime.Scheme
+	PgpolicyClientset *kubernetes.Clientset
 }
 
 // Run starts an Example resource controller
@@ -95,6 +98,7 @@ func (c *PgpolicyController) onAdd(obj interface{}) {
 	} else {
 		fmt.Printf("UPDATED status: %#v\n", exampleCopy)
 	}
+	//policyoperator.AddPolicyBase(c.PgpolicyClientset, c.PgpolicyClient, exampleCopy, example.ObjectMeta.Namespace)
 }
 
 func (c *PgpolicyController) onUpdate(oldObj, newObj interface{}) {

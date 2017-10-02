@@ -7,16 +7,19 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 
 	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
+	backupoperator "github.com/crunchydata/kraken/operator/backup"
 )
 
 // Watcher is an example of watching on resource create/update/delete events
 type PgbackupController struct {
-	PgbackupClient *rest.RESTClient
-	PgbackupScheme *runtime.Scheme
+	PgbackupClient    *rest.RESTClient
+	PgbackupScheme    *runtime.Scheme
+	PgbackupClientset *kubernetes.Clientset
 }
 
 // Run starts an Example resource controller
@@ -95,6 +98,8 @@ func (c *PgbackupController) onAdd(obj interface{}) {
 	} else {
 		fmt.Printf("UPDATED status: %#v\n", exampleCopy)
 	}
+
+	backupoperator.AddBackupBase(c.PgbackupClientset, c.PgbackupClient, exampleCopy, example.ObjectMeta.Namespace)
 }
 
 func (c *PgbackupController) onUpdate(oldObj, newObj interface{}) {

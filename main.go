@@ -140,12 +140,14 @@ func main() {
 		PgupgradeScheme: exampleScheme,
 	}
 	pgBackupcontroller := examplecontroller.PgbackupController{
-		PgbackupClient: exampleClient,
-		PgbackupScheme: exampleScheme,
+		PgbackupClient:    exampleClient,
+		PgbackupScheme:    exampleScheme,
+		PgbackupClientset: Clientset,
 	}
 	pgPolicycontroller := examplecontroller.PgpolicyController{
-		PgpolicyClient: exampleClient,
-		PgpolicyScheme: exampleScheme,
+		PgpolicyClient:    exampleClient,
+		PgpolicyScheme:    exampleScheme,
+		PgpolicyClientset: Clientset,
 	}
 	pgPolicylogcontroller := examplecontroller.PgpolicylogController{
 		PgpolicylogClient: exampleClient,
