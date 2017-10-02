@@ -22,12 +22,12 @@ runmain:	check-go-vars
 	main --kubeconfig=/etc/kubernetes/admin.conf
 apiserver:	check-go-vars
 	cd apiserver && go install apiserver.go
+rpgo:	check-go-vars
+	cd rpgo && go install rpgo.go
 pgo:	check-go-vars
 	cd pgo && go install pgo.go
 runpgo:	check-go-vars
 	pgo --kubeconfig=/etc/kubernetes/admin.conf
-rpgo:	check-go-vars
-	cd rclient && go build -o $(GOBIN)/rpgo rpgo.go
 clean:	check-go-vars
 	rm -rf $(GOPATH)/pkg/* $(GOBIN)/main $(GOBIN)/pgo
 	godep restore
