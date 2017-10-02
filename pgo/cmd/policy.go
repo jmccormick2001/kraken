@@ -19,6 +19,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	//"github.com/crunchydata/kraken/util"
 	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
+	"github.com/crunchydata/kraken/util"
 
 	"github.com/spf13/viper"
 	"io/ioutil"
@@ -235,7 +236,7 @@ func applyPolicy(policies []string) {
 	//validate policies
 	labels := make(map[string]string)
 	for _, p := range policies {
-		err = validatePolicy(p)
+		err = util.ValidatePolicy(RestClient, Namespace, p)
 		if err != nil {
 			log.Error("policy " + p + " is not found, cancelling request")
 			return
@@ -324,22 +325,4 @@ func getPolicylog(policyname, clustername string) (*crv1.PgPolicylog, error) {
 	}
 	return newInstance, err
 
-}
-
-func validatePolicy(policyName string) error {
-	result := crv1.PgPolicy{}
-	err := RestClient.Get().
-		Resource(crv1.PgPolicyResourcePlural).
-		Namespace(Namespace).
-		Name(policyName).
-		Do().
-		Into(&result)
-	if err == nil {
-		log.Debug("pgpolicy " + policyName + " was validated")
-	} else if kerrors.IsNotFound(err) {
-		log.Debug("pgpolicy " + policyName + " not found fail validation")
-	} else {
-		log.Error("error getting pgpolicy " + policyName + err.Error())
-	}
-	return err
 }
