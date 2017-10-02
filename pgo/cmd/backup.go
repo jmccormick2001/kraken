@@ -81,7 +81,7 @@ func showBackup(args []string) {
 }
 func showBackupInfo(name string) {
 	fmt.Println("\nbackup information for " + name + "...")
-	//print the pgbackups TPR if it exists
+	//print the pgbackups CRD if it exists
 	result := crv1.Pgbackup{}
 	err := RestClient.Get().
 		Resource(crv1.PgbackupResourcePlural).
@@ -90,9 +90,9 @@ func showBackupInfo(name string) {
 		Do().
 		Into(&result)
 	if err == nil {
-		printBackupTPR(&result)
+		printBackupCRD(&result)
 	} else if errors.IsNotFound(err) {
-		fmt.Println("\npgbackup TPR not found ")
+		fmt.Println("\npgbackup CRD not found ")
 	} else {
 		log.Errorf("\npgbackup %s\n", name+" lookup error ")
 		log.Error(err.Error())
@@ -133,7 +133,7 @@ func showBackupInfo(name string) {
 	}
 }
 
-func printBackupTPR(result *crv1.Pgbackup) {
+func printBackupCRD(result *crv1.Pgbackup) {
 	fmt.Printf("%s%s\n", "", "")
 	fmt.Printf("%s%s\n", "", "pgbackup : "+result.Spec.Name)
 
@@ -213,7 +213,7 @@ func createBackup(args []string) {
 			log.Error(err.Error())
 			break
 		}
-		// Create an instance of our TPR
+		// Create an instance of our CRD
 		newInstance, err = getBackupParams(arg)
 		if err != nil {
 			log.Error("error creating backup")
@@ -226,7 +226,7 @@ func createBackup(args []string) {
 			Body(newInstance).
 			Do().Into(&result)
 		if err != nil {
-			log.Error("error in creating Pgbackup TPR instance")
+			log.Error("error in creating Pgbackup CRD instance")
 			log.Error(err.Error())
 		}
 		fmt.Println("created Pgbackup " + arg)

@@ -93,7 +93,7 @@ func createPolicy(args []string) {
 			break
 		}
 
-		// Create an instance of our TPR
+		// Create an instance of our CRD
 		newInstance, err := getPolicyParams(arg)
 		if err != nil {
 			log.Error(" error in policy parameters ")
@@ -155,7 +155,7 @@ func getPolicyString(filename string) (string, error) {
 }
 
 func deletePolicy(args []string) {
-	// Fetch a list of our policy TPRs
+	// Fetch a list of our policy CRDs
 	policyList := crv1.PgpolicyList{}
 	err := RestClient.Get().Resource(crv1.PgpolicyResourcePlural).Do().Into(&policyList)
 	if err != nil {
@@ -273,7 +273,7 @@ func applyPolicy(policies []string) {
 
 			result := crv1.Pgpolicylog{}
 			err = RestClient.Get().
-				Resource(crv1.PgpolicyResourcePlural).
+				Resource(crv1.PgpolicylogResourcePlural).
 				Namespace(Namespace).
 				Name(newInstance.ObjectMeta.Name).
 				Do().Into(&result)
@@ -290,12 +290,12 @@ func applyPolicy(policies []string) {
 
 			result = crv1.Pgpolicylog{}
 			err = RestClient.Post().
-				Resource(crv1.PgpolicyResourcePlural).
+				Resource(crv1.PgpolicylogResourcePlural).
 				Namespace(Namespace).
 				Body(newInstance).
 				Do().Into(&result)
 			if err != nil {
-				log.Error("error in creating Pgpolicylog TPR instance", err.Error())
+				log.Error("error in creating Pgpolicylog CRD instance", err.Error())
 			} else {
 				fmt.Println("created Pgpolicylog " + result.ObjectMeta.Name)
 			}

@@ -215,7 +215,7 @@ func createCluster(args []string) {
 				}
 			}
 
-			// Create an instance of our TPR
+			// Create an instance of our CRD
 			newInstance := getClusterParams(clusterName)
 			validateConfigPolicies()
 
@@ -345,7 +345,7 @@ func deleteCluster(args []string) {
 
 	var err error
 
-	// Fetch a list of our cluster TPRs
+	// Fetch a list of our cluster CRD
 	clusterList := crv1.PgclusterList{}
 	myselector := labels.Everything()
 

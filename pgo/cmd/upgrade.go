@@ -121,7 +121,7 @@ func showUpgrade(args []string) {
 
 func showUpgradeItem(upgrade *crv1.Pgupgrade) {
 
-	//print the TPR
+	//print the CRD
 	fmt.Printf("%s%s\n", "", "")
 	fmt.Printf("%s%s\n", "", "pgupgrade : "+upgrade.Spec.Name)
 	fmt.Printf("%s%s\n", TREE_BRANCH, "upgrade_status : "+upgrade.Spec.UPGRADE_STATUS)
@@ -242,7 +242,7 @@ func createUpgrade(args []string) {
 			break
 		}
 
-		// Create an instance of our TPR
+		// Create an instance of our CRD
 		newInstance, err = getUpgradeParams(arg)
 		if err == nil {
 			err = RestClient.Post().
@@ -251,7 +251,7 @@ func createUpgrade(args []string) {
 				Body(newInstance).
 				Do().Into(&result)
 			if err != nil {
-				log.Error("error in creating Pgupgrade TPR instance", err.Error())
+				log.Error("error in creating Pgupgrade CRD instance", err.Error())
 			} else {
 				fmt.Println("created Pgupgrade " + arg)
 			}
