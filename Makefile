@@ -20,6 +20,8 @@ main:	check-go-vars
 	go install main.go
 runmain:	check-go-vars
 	main --kubeconfig=/etc/kubernetes/admin.conf
+apiserver:	check-go-vars
+	cd apiserver && go install apiserver.go
 pgo:	check-go-vars
 	cd pgo && go install pgo.go
 runpgo:	check-go-vars
