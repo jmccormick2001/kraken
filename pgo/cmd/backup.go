@@ -332,3 +332,27 @@ type PodTemplateFields struct {
 	BACKUP_ROOT  string
 	PVC_NAME     string
 }
+
+func GetSecretPassword(db, suffix string) string {
+
+	lo := meta_v1.ListOptions{LabelSelector: "pg-database=" + db}
+	secrets, err := Clientset.Core().Secrets(Namespace).List(lo)
+	if err != nil {
+		log.Error("error getting list of secrets" + err.Error())
+		return "error"
+	}
+
+	log.Debug("secrets for " + db)
+	secretName := db + suffix
+	for _, s := range secrets.Items {
+		log.Debug("secret : " + s.ObjectMeta.Name)
+		if s.ObjectMeta.Name == secretName {
+			log.Debug("pgmaster password found")
+			return string(s.Data["password"][:])
+		}
+	}
+
+	log.Error("master secret not found for " + db)
+	return "error"
+
+}

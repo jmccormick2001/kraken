@@ -112,4 +112,5 @@ func (c *PgclusterController) onUpdate(oldObj, newObj interface{}) {
 func (c *PgclusterController) onDelete(obj interface{}) {
 	example := obj.(*crv1.Pgcluster)
 	fmt.Printf("[PgclusterCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
+	clusteroperator.DeleteClusterBase(c.PgclusterClientset, c.PgclusterClient, example, example.ObjectMeta.Namespace)
 }

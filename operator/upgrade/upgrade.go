@@ -18,9 +18,9 @@ package upgrade
 import (
 	log "github.com/Sirupsen/logrus"
 	"os"
-	"time"
+	//"time"
 
-	"github.com/crunchydata/kraken/apis/cr/v1"
+	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
 	"github.com/crunchydata/kraken/operator/cluster"
 	"github.com/crunchydata/kraken/util"
 
@@ -28,70 +28,22 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/fields"
+	//"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/watch"
 	//	v1batch "k8s.io/client-go/pkg/apis/batch/v1"
 	v1batch "k8s.io/api/batch/v1"
 
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/cache"
+	//"k8s.io/client-go/tools/cache"
 )
 
-func Process(clientset *kubernetes.Clientset, client *rest.RESTClient, stopchan chan struct{}, namespace string) {
-
-	eventchan := make(chan *crv1.PgUpgrade)
-
-	source := cache.NewListWatchFromClient(client, "pgupgrades", namespace, fields.Everything())
-
-	createAddHandler := func(obj interface{}) {
-		job := obj.(*crv1.PgUpgrade)
-		eventchan <- job
-		addUpgrade(clientset, client, job, namespace)
-	}
-	createDeleteHandler := func(obj interface{}) {
-		job := obj.(*crv1.PgUpgrade)
-		eventchan <- job
-		deleteUpgrade(clientset, client, job, namespace)
-	}
-
-	updateHandler := func(old interface{}, obj interface{}) {
-		job := obj.(*crv1.PgUpgrade)
-		eventchan <- job
-		//log.Info("updating PgUpgrade object")
-		//log.Info("updated with Name=" + job.Spec.Name)
-	}
-
-	_, controller := cache.NewInformer(
-		source,
-		&crv1.PgUpgrade{},
-		time.Second*10,
-		cache.ResourceEventHandlerFuncs{
-			AddFunc:    createAddHandler,
-			UpdateFunc: updateHandler,
-			DeleteFunc: createDeleteHandler,
-		})
-
-	go controller.Run(stopchan)
-
-	for {
-		select {
-		case event := <-eventchan:
-			//log.Infof("%#v\n", event)
-			if event == nil {
-				log.Info("event was null")
-			}
-		}
-	}
-
-}
-
-func addUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient, upgrade *crv1.PgUpgrade, namespace string) {
+func AddUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient, upgrade *crv1.Pgupgrade, namespace string) {
 	var err error
-	cl := crv1.PgCluster{}
+	cl := crv1.Pgcluster{}
 
-	//not a db so get the pgcluster TPR
+	//not a db so get the pgcluster CRD
 	err = restclient.Get().
-		Resource("pgclusters").
+		Resource(crv1.PgclusterResourcePlural).
 		Namespace(namespace).
 		Name(upgrade.Spec.Name).
 		Do().
@@ -105,11 +57,11 @@ func addUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient, up
 		}
 	}
 
-	err = cluster.AddUpgrade(clientset, restclient, upgrade, namespace, &cl)
+	err = cluster.AddUpgradeBase(clientset, restclient, upgrade, namespace, &cl)
 	if err != nil {
 		log.Error("error adding upgrade" + err.Error())
 	} else {
-		//update the upgrade TPR status to submitted
+		//update the upgrade CRD status to submitted
 		err = util.Patch(restclient, "/spec/upgradestatus", crv1.UPGRADE_SUBMITTED_STATUS, "pgupgrades", upgrade.Spec.Name, namespace)
 		if err != nil {
 			log.Error("error patching upgrade" + err.Error())
@@ -118,7 +70,7 @@ func addUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient, up
 
 }
 
-func deleteUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient, upgrade *crv1.PgUpgrade, namespace string) {
+func DeleteUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient, upgrade *crv1.Pgupgrade, namespace string) {
 	var jobName = "upgrade-" + upgrade.Spec.Name
 	log.Debug("deleting Job with Name=" + jobName + " in namespace " + namespace)
 
@@ -183,8 +135,8 @@ func MajorUpgradeProcess(clientset *kubernetes.Clientset, restclient *rest.RESTC
 
 func finishUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient, job *v1batch.Job, namespace string) {
 
-	var cl crv1.PgCluster
-	var upgrade crv1.PgUpgrade
+	var cl crv1.Pgcluster
+	var upgrade crv1.Pgupgrade
 
 	//from the job get the db and upgrade TPRs
 	//pgdatabase name is from the pg-database label value in the job
@@ -197,7 +149,7 @@ func finishUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient,
 	}
 
 	err := restclient.Get().
-		Resource("pgupgrades").
+		Resource(crv1.PgupgradeResourcePlural).
 		Namespace(namespace).
 		Name(name).
 		Do().Into(&upgrade)
@@ -211,7 +163,7 @@ func finishUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient,
 	log.Info(name + " pgupgrade crv1 is found")
 
 	err = restclient.Get().
-		Resource("pgclusters").
+		Resource(crv1.PgclusterResourcePlural).
 		Namespace(namespace).
 		Name(name).
 		Do().Into(&cl)
@@ -247,7 +199,7 @@ func finishUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient,
 	}
 
 	if err == nil {
-		//update the upgrade TPR status to completed
+		//update the upgrade CRD status to completed
 		err = util.Patch(restclient, "/spec/upgradestatus", crv1.UPGRADE_COMPLETED_STATUS, "pgupgrades", upgrade.Spec.Name, namespace)
 		if err != nil {
 			log.Error("error in patch upgrade " + err.Error())

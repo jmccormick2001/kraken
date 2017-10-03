@@ -171,8 +171,11 @@ func DeleteClusterBase(clientset *kubernetes.Clientset, client *rest.RESTClient,
 		log.Error("invalid STRATEGY requested for cluster creation" + cl.Spec.STRATEGY)
 		return
 	}
+
 	util.DeleteDatabaseSecrets(clientset, cl.Spec.Name, namespace)
+
 	strategy.DeleteCluster(clientset, client, cl, namespace)
+
 	err := client.Delete().
 		Resource(crv1.PgupgradeResourcePlural).
 		Namespace(namespace).

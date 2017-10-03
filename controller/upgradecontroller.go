@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/tools/cache"
 
 	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
+	upgradeoperator "github.com/crunchydata/kraken/operator/upgrade"
 )
 
 // Watcher is an example of watching on resource create/update/delete events
@@ -97,6 +98,8 @@ func (c *PgupgradeController) onAdd(obj interface{}) {
 	} else {
 		fmt.Printf("UPDATED status: %#v\n", exampleCopy)
 	}
+
+	upgradeoperator.AddUpgrade(c.PgupgradeClientset, c.PgupgradeClient, exampleCopy, example.ObjectMeta.Namespace)
 }
 
 func (c *PgupgradeController) onUpdate(oldObj, newObj interface{}) {
@@ -109,4 +112,5 @@ func (c *PgupgradeController) onUpdate(oldObj, newObj interface{}) {
 func (c *PgupgradeController) onDelete(obj interface{}) {
 	example := obj.(*crv1.Pgupgrade)
 	fmt.Printf("[PgupgradeCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
+	upgradeoperator.DeleteUpgrade(c.PgupgradeClientset, c.PgupgradeClient, example, example.ObjectMeta.Namespace)
 }

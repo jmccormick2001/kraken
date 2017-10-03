@@ -521,3 +521,22 @@ func validateSecretFrom(secretname string) error {
 
 	return err
 }
+
+func PrintSecrets(db string) {
+
+	lo := meta_v1.ListOptions{LabelSelector: "pg-database=" + db}
+	secrets, err := Clientset.Core().Secrets(Namespace).List(lo)
+	if err != nil {
+		log.Error("error getting list of secrets" + err.Error())
+		return
+	}
+
+	log.Debug("secrets for " + db)
+	for _, s := range secrets.Items {
+		fmt.Println("")
+		fmt.Println("secret : " + s.ObjectMeta.Name)
+		fmt.Println(TREE_BRANCH + "username: " + string(s.Data["username"][:]))
+		fmt.Println(TREE_TRUNK + "password: " + string(s.Data["password"][:]))
+	}
+
+}

@@ -111,4 +111,16 @@ func (c *PgpolicyController) onUpdate(oldObj, newObj interface{}) {
 func (c *PgpolicyController) onDelete(obj interface{}) {
 	example := obj.(*crv1.Pgpolicy)
 	fmt.Printf("[PgpolicyCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
+	err := c.PgpolicyClient.Delete().
+		Resource(crv1.PgpolicyResourcePlural).
+		Namespace(example.ObjectMeta.Namespace).
+		Name(example.ObjectMeta.Name).
+		Do().
+		Error()
+
+	if err != nil {
+		fmt.Printf("ERROR deleting pgpolicy: %v\n", err)
+	} else {
+		fmt.Println("DELETED pgpolicy " + example.ObjectMeta.Name)
+	}
 }

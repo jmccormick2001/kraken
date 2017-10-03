@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	log "github.com/Sirupsen/logrus"
+
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -69,6 +71,10 @@ func (c *PgpolicylogController) watchPgpolicylogs(ctx context.Context) (cache.Co
 func (c *PgpolicylogController) onAdd(obj interface{}) {
 	example := obj.(*crv1.Pgpolicylog)
 	fmt.Printf("[PgpolicylogCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
+	if example.Status.State == crv1.PgpolicylogStateProcessed {
+		log.Infoln("pgpolicylog " + example.ObjectMeta.Name + " already processed")
+		return
+	}
 
 	// NEVER modify objects from the store. It's a read-only, local cache.
 	// You can use exampleScheme.Copy() to make a deep copy of original object and modify this copy
