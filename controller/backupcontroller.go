@@ -15,7 +15,7 @@ import (
 	backupoperator "github.com/crunchydata/kraken/operator/backup"
 )
 
-// Watcher is an example of watching on resource create/update/delete events
+// Watcher is an backup of watching on resource create/update/delete events
 type PgbackupController struct {
 	PgbackupClient    *rest.RESTClient
 	PgbackupScheme    *runtime.Scheme
@@ -67,43 +67,43 @@ func (c *PgbackupController) watchPgbackups(ctx context.Context) (cache.Controll
 }
 
 func (c *PgbackupController) onAdd(obj interface{}) {
-	example := obj.(*crv1.Pgbackup)
-	fmt.Printf("[PgbackupCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
-	if example.Status.State == crv1.PgbackupStateProcessed {
-		log.Info("pgbackup " + example.ObjectMeta.Name + " already processed")
+	backup := obj.(*crv1.Pgbackup)
+	fmt.Printf("[PgbackupCONTROLLER] OnAdd %s\n", backup.ObjectMeta.SelfLink)
+	if backup.Status.State == crv1.PgbackupStateProcessed {
+		log.Info("pgbackup " + backup.ObjectMeta.Name + " already processed")
 		return
 	}
 
 	// NEVER modify objects from the store. It's a read-only, local cache.
-	// You can use exampleScheme.Copy() to make a deep copy of original object and modify this copy
+	// You can use backupScheme.Copy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
-	copyObj, err := c.PgbackupScheme.Copy(example)
+	copyObj, err := c.PgbackupScheme.Copy(backup)
 	if err != nil {
-		fmt.Printf("ERROR creating a deep copy of example object: %v\n", err)
+		fmt.Printf("ERROR creating a deep copy of backup object: %v\n", err)
 		return
 	}
 
-	exampleCopy := copyObj.(*crv1.Pgbackup)
-	exampleCopy.Status = crv1.PgbackupStatus{
+	backupCopy := copyObj.(*crv1.Pgbackup)
+	backupCopy.Status = crv1.PgbackupStatus{
 		State:   crv1.PgbackupStateProcessed,
 		Message: "Successfully processed Pgbackup by controller",
 	}
 
 	err = c.PgbackupClient.Put().
-		Name(example.ObjectMeta.Name).
-		Namespace(example.ObjectMeta.Namespace).
+		Name(backup.ObjectMeta.Name).
+		Namespace(backup.ObjectMeta.Namespace).
 		Resource(crv1.PgbackupResourcePlural).
-		Body(exampleCopy).
+		Body(backupCopy).
 		Do().
 		Error()
 
 	if err != nil {
 		fmt.Printf("ERROR updating status: %v\n", err)
 	} else {
-		fmt.Printf("UPDATED status: %#v\n", exampleCopy)
+		fmt.Printf("UPDATED status: %#v\n", backupCopy)
 	}
 
-	backupoperator.AddBackupBase(c.PgbackupClientset, c.PgbackupClient, exampleCopy, example.ObjectMeta.Namespace)
+	backupoperator.AddBackupBase(c.PgbackupClientset, c.PgbackupClient, backupCopy, backup.ObjectMeta.Namespace)
 }
 
 func (c *PgbackupController) onUpdate(oldObj, newObj interface{}) {
@@ -114,6 +114,6 @@ func (c *PgbackupController) onUpdate(oldObj, newObj interface{}) {
 }
 
 func (c *PgbackupController) onDelete(obj interface{}) {
-	example := obj.(*crv1.Pgbackup)
-	fmt.Printf("[PgbackupCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
+	backup := obj.(*crv1.Pgbackup)
+	fmt.Printf("[PgbackupCONTROLLER] OnDelete %s\n", backup.ObjectMeta.SelfLink)
 }

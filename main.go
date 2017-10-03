@@ -26,22 +26,18 @@ import (
 	"os/signal"
 	"syscall"
 
-	//"os"
-	//"time"
-
-	//apiv1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	//metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
 	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
-	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
-	exampleclient "github.com/crunchydata/kraken/client"
-	examplecontroller "github.com/crunchydata/kraken/controller"
+	//crv1 "github.com/crunchydata/kraken/apis/cr/v1"
+	crdclient "github.com/crunchydata/kraken/client"
+	"github.com/crunchydata/kraken/controller"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -70,7 +66,7 @@ func main() {
 	}
 
 	// initialize custom resource using a CustomResourceDefinition if it does not exist
-	crd, err := exampleclient.CreateCustomResourceDefinition(apiextensionsclientset)
+	crd, err := crdclient.CreateCustomResourceDefinition(apiextensionsclientset)
 	if err != nil && !apierrors.IsAlreadyExists(err) {
 		panic(err)
 	}
@@ -79,7 +75,7 @@ func main() {
 	}
 	//defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(crd.Name, nil)
 
-	clustercrd, err := exampleclient.PgclusterCreateCustomResourceDefinition(apiextensionsclientset)
+	clustercrd, err := crdclient.PgclusterCreateCustomResourceDefinition(apiextensionsclientset)
 	if err != nil && !apierrors.IsAlreadyExists(err) {
 		panic(err)
 	}
@@ -88,7 +84,7 @@ func main() {
 	}
 	//defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(clustercrd.Name, nil)
 
-	backupcrd, err := exampleclient.PgbackupCreateCustomResourceDefinition(apiextensionsclientset)
+	backupcrd, err := crdclient.PgbackupCreateCustomResourceDefinition(apiextensionsclientset)
 	if err != nil && !apierrors.IsAlreadyExists(err) {
 		panic(err)
 	}
@@ -96,7 +92,7 @@ func main() {
 		fmt.Println(backupcrd.Name + " exists ")
 	}
 	//defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(clustercrd.Name, nil)
-	upgradecrd, err := exampleclient.PgupgradeCreateCustomResourceDefinition(apiextensionsclientset)
+	upgradecrd, err := crdclient.PgupgradeCreateCustomResourceDefinition(apiextensionsclientset)
 	if err != nil && !apierrors.IsAlreadyExists(err) {
 		panic(err)
 	}
@@ -104,14 +100,14 @@ func main() {
 		fmt.Println(upgradecrd.Name + " exists ")
 	}
 	//defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(clustercrd.Name, nil)
-	policycrd, err := exampleclient.PgpolicyCreateCustomResourceDefinition(apiextensionsclientset)
+	policycrd, err := crdclient.PgpolicyCreateCustomResourceDefinition(apiextensionsclientset)
 	if err != nil && !apierrors.IsAlreadyExists(err) {
 		panic(err)
 	}
 	if policycrd != nil {
 		fmt.Println(policycrd.Name + " exists ")
 	}
-	policylogcrd, err := exampleclient.PgpolicylogCreateCustomResourceDefinition(apiextensionsclientset)
+	policylogcrd, err := crdclient.PgpolicylogCreateCustomResourceDefinition(apiextensionsclientset)
 	if err != nil && !apierrors.IsAlreadyExists(err) {
 		panic(err)
 	}
@@ -120,45 +116,41 @@ func main() {
 	}
 
 	// make a new config for our extension's API group, using the first config as a baseline
-	exampleClient, exampleScheme, err := exampleclient.NewClient(config)
+	crdClient, crdScheme, err := crdclient.NewClient(config)
 	if err != nil {
 		panic(err)
 	}
 
 	// start a controller on instances of our custom resource
-	controller := examplecontroller.ExampleController{
-		ExampleClient: exampleClient,
-		ExampleScheme: exampleScheme,
-	}
-	pgClustercontroller := examplecontroller.PgclusterController{
-		PgclusterClient:    exampleClient,
-		PgclusterScheme:    exampleScheme,
+
+	pgClustercontroller := controller.PgclusterController{
+		PgclusterClient:    crdClient,
+		PgclusterScheme:    crdScheme,
 		PgclusterClientset: Clientset,
 	}
-	pgUpgradecontroller := examplecontroller.PgupgradeController{
+	pgUpgradecontroller := controller.PgupgradeController{
 		PgupgradeClientset: Clientset,
-		PgupgradeClient:    exampleClient,
-		PgupgradeScheme:    exampleScheme,
+		PgupgradeClient:    crdClient,
+		PgupgradeScheme:    crdScheme,
 	}
-	pgBackupcontroller := examplecontroller.PgbackupController{
-		PgbackupClient:    exampleClient,
-		PgbackupScheme:    exampleScheme,
+	pgBackupcontroller := controller.PgbackupController{
+		PgbackupClient:    crdClient,
+		PgbackupScheme:    crdScheme,
 		PgbackupClientset: Clientset,
 	}
-	pgPolicycontroller := examplecontroller.PgpolicyController{
-		PgpolicyClient:    exampleClient,
-		PgpolicyScheme:    exampleScheme,
+	pgPolicycontroller := controller.PgpolicyController{
+		PgpolicyClient:    crdClient,
+		PgpolicyScheme:    crdScheme,
 		PgpolicyClientset: Clientset,
 	}
-	pgPolicylogcontroller := examplecontroller.PgpolicylogController{
+	pgPolicylogcontroller := controller.PgpolicylogController{
 		PgpolicylogClientset: Clientset,
-		PgpolicylogClient:    exampleClient,
-		PgpolicylogScheme:    exampleScheme,
+		PgpolicylogClient:    crdClient,
+		PgpolicylogScheme:    crdScheme,
 	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
-	go controller.Run(ctx)
 	go pgClustercontroller.Run(ctx)
 	go pgBackupcontroller.Run(ctx)
 	go pgUpgradecontroller.Run(ctx)
@@ -166,33 +158,6 @@ func main() {
 	go pgPolicylogcontroller.Run(ctx)
 
 	fmt.Print("at end of setup, beginning wait...")
-	// Create an instance of our custom resource
-	example := &crv1.Example{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "example1",
-		},
-		Spec: crv1.ExampleSpec{
-			Foo: "hello",
-			Bar: true,
-		},
-		Status: crv1.ExampleStatus{
-			State:   crv1.ExampleStateCreated,
-			Message: "Created, not processed yet",
-		},
-	}
-	var result crv1.Example
-	err = exampleClient.Post().
-		Resource(crv1.ExampleResourcePlural).
-		Namespace("default").
-		Body(example).
-		Do().Into(&result)
-	if err == nil {
-		fmt.Printf("CREATED: %#v\n", result)
-	} else if apierrors.IsAlreadyExists(err) {
-		fmt.Printf("ALREADY EXISTS: %#v\n", result)
-	} else {
-		panic(err)
-	}
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
@@ -204,118 +169,6 @@ func main() {
 		}
 	}
 
-	/**
-	time.Sleep(200000 * time.Millisecond)
-	os.Exit(0)
-
-	// Create an instance of our custom resource
-	example := &crv1.Example{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "example1",
-		},
-		Spec: crv1.ExampleSpec{
-			Foo: "hello",
-			Bar: true,
-		},
-		Status: crv1.ExampleStatus{
-			State:   crv1.ExampleStateCreated,
-			Message: "Created, not processed yet",
-		},
-	}
-	var result crv1.Example
-	err = exampleClient.Post().
-		Resource(crv1.ExampleResourcePlural).
-		Namespace(apiv1.NamespaceDefault).
-		Body(example).
-		Do().Into(&result)
-	if err == nil {
-		fmt.Printf("CREATED: %#v\n", result)
-	} else if apierrors.IsAlreadyExists(err) {
-		fmt.Printf("ALREADY EXISTS: %#v\n", result)
-	} else {
-		panic(err)
-	}
-
-	userLabels := make(map[string]string)
-	masterStorage := crv1.PgStorageSpec{}
-	masterStorage.PvcName = ""
-	masterStorage.StorageClass = ""
-	masterStorage.PvcAccessMode = ""
-	masterStorage.PvcSize = ""
-	masterStorage.StorageType = ""
-	masterStorage.FSGROUP = ""
-	masterStorage.SUPPLEMENTAL_GROUPS = ""
-
-	clusterexample := &crv1.Pgcluster{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "cluster1",
-		},
-		Spec: crv1.PgclusterSpec{
-			Name:                  "cluster1",
-			ClusterName:           "cluster1",
-			Policies:              "",
-			CCP_IMAGE_TAG:         "",
-			POSTGRES_FULL_VERSION: "",
-			Port:                 "",
-			NodeName:             "",
-			MasterStorage:        masterStorage,
-			ReplicaStorage:       masterStorage,
-			PG_MASTER_HOST:       "",
-			PG_MASTER_USER:       "",
-			PG_MASTER_PASSWORD:   "",
-			PG_USER:              "",
-			PG_PASSWORD:          "",
-			PG_DATABASE:          "",
-			PG_ROOT_PASSWORD:     "",
-			REPLICAS:             "",
-			STRATEGY:             "",
-			SECRET_FROM:          "",
-			BACKUP_PVC_NAME:      "",
-			BACKUP_PATH:          "",
-			PGUSER_SECRET_NAME:   "",
-			PGROOT_SECRET_NAME:   "",
-			PGMASTER_SECRET_NAME: "",
-			STATUS:               "",
-			PSW_LAST_UPDATE:      "",
-			UserLabels:           userLabels,
-		},
-		Status: crv1.PgclusterStatus{
-			State:   crv1.PgclusterStateCreated,
-			Message: "Created, not processed yet",
-		},
-	}
-	var clusterresult crv1.Pgcluster
-	err = exampleClient.Post().
-		Resource(crv1.PgclusterResourcePlural).
-		Namespace(apiv1.NamespaceDefault).
-		Body(clusterexample).
-		Do().Into(&clusterresult)
-	if err == nil {
-		fmt.Printf("CREATED: %#v\n", result)
-	} else if apierrors.IsAlreadyExists(err) {
-		fmt.Printf("ALREADY EXISTS: %#v\n", result)
-	} else {
-		fmt.Println(err.Error())
-		panic(err)
-	}
-
-	// Poll until Example object is handled by controller and gets status updated to "Processed"
-	err = exampleclient.WaitForExampleInstanceProcessed(exampleClient, "example1")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Print("PROCESSED sleeping 20 seconds\n")
-
-	time.Sleep(20000 * time.Millisecond)
-
-	// Fetch a list of our TPRs
-	exampleList := crv1.ExampleList{}
-	err = exampleClient.Get().Resource(crv1.ExampleResourcePlural).Do().Into(&exampleList)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("LIST: %#v\n", exampleList)
-	*/
 }
 
 func buildConfig(kubeconfig string) (*rest.Config, error) {

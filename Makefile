@@ -20,6 +20,8 @@ main:	check-go-vars
 	go install main.go
 runmain:	check-go-vars
 	main --kubeconfig=/etc/kubernetes/admin.conf
+runapiserver:	check-go-vars
+	apiserver --kubeconfig=/etc/kubernetes/admin.conf
 apiserver:	check-go-vars
 	cd apiserver && go install apiserver.go
 rpgo:	check-go-vars
@@ -31,8 +33,6 @@ runpgo:	check-go-vars
 clean:	check-go-vars
 	rm -rf $(GOPATH)/pkg/* $(GOBIN)/main $(GOBIN)/pgo
 	godep restore
-api:	check-go-vars
-	cd api && go install apiserver.go
 foo:	check-go-vars
 	cd foo && go install main.go
 operatorimage:	check-go-vars

@@ -15,7 +15,7 @@ import (
 	clusteroperator "github.com/crunchydata/kraken/operator/cluster"
 )
 
-// Watcher is an example of watching on resource create/update/delete events
+// Watcher is an cluster of watching on resource create/update/delete events
 type PgclusterController struct {
 	PgclusterClient    *rest.RESTClient
 	PgclusterScheme    *runtime.Scheme
@@ -67,43 +67,43 @@ func (c *PgclusterController) watchPgclusters(ctx context.Context) (cache.Contro
 }
 
 func (c *PgclusterController) onAdd(obj interface{}) {
-	example := obj.(*crv1.Pgcluster)
-	fmt.Printf("[PgclusterCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
-	if example.Status.State == crv1.PgclusterStateProcessed {
-		log.Info("pgcluster " + example.ObjectMeta.Name + " already processed")
+	cluster := obj.(*crv1.Pgcluster)
+	fmt.Printf("[PgclusterCONTROLLER] OnAdd %s\n", cluster.ObjectMeta.SelfLink)
+	if cluster.Status.State == crv1.PgclusterStateProcessed {
+		log.Info("pgcluster " + cluster.ObjectMeta.Name + " already processed")
 		return
 	}
 
 	// NEVER modify objects from the store. It's a read-only, local cache.
-	// You can use exampleScheme.Copy() to make a deep copy of original object and modify this copy
+	// You can use clusterScheme.Copy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
-	copyObj, err := c.PgclusterScheme.Copy(example)
+	copyObj, err := c.PgclusterScheme.Copy(cluster)
 	if err != nil {
-		fmt.Printf("ERROR creating a deep copy of example object: %v\n", err)
+		fmt.Printf("ERROR creating a deep copy of cluster object: %v\n", err)
 		return
 	}
 
-	exampleCopy := copyObj.(*crv1.Pgcluster)
-	exampleCopy.Status = crv1.PgclusterStatus{
+	clusterCopy := copyObj.(*crv1.Pgcluster)
+	clusterCopy.Status = crv1.PgclusterStatus{
 		State:   crv1.PgclusterStateProcessed,
 		Message: "Successfully processed Pgcluster by controller",
 	}
 
 	err = c.PgclusterClient.Put().
-		Name(example.ObjectMeta.Name).
-		Namespace(example.ObjectMeta.Namespace).
+		Name(cluster.ObjectMeta.Name).
+		Namespace(cluster.ObjectMeta.Namespace).
 		Resource(crv1.PgclusterResourcePlural).
-		Body(exampleCopy).
+		Body(clusterCopy).
 		Do().
 		Error()
 
 	if err != nil {
 		fmt.Printf("ERROR updating status: %v\n", err)
 	} else {
-		fmt.Printf("UPDATED status: %#v\n", exampleCopy)
+		fmt.Printf("UPDATED status: %#v\n", clusterCopy)
 	}
 
-	clusteroperator.AddClusterBase(c.PgclusterClientset, c.PgclusterClient, exampleCopy, example.ObjectMeta.Namespace)
+	clusteroperator.AddClusterBase(c.PgclusterClientset, c.PgclusterClient, clusterCopy, cluster.ObjectMeta.Namespace)
 }
 
 func (c *PgclusterController) onUpdate(oldObj, newObj interface{}) {
@@ -117,7 +117,7 @@ func (c *PgclusterController) onUpdate(oldObj, newObj interface{}) {
 }
 
 func (c *PgclusterController) onDelete(obj interface{}) {
-	example := obj.(*crv1.Pgcluster)
-	fmt.Printf("[PgclusterCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
-	clusteroperator.DeleteClusterBase(c.PgclusterClientset, c.PgclusterClient, example, example.ObjectMeta.Namespace)
+	cluster := obj.(*crv1.Pgcluster)
+	fmt.Printf("[PgclusterCONTROLLER] OnDelete %s\n", cluster.ObjectMeta.SelfLink)
+	clusteroperator.DeleteClusterBase(c.PgclusterClientset, c.PgclusterClient, cluster, cluster.ObjectMeta.Namespace)
 }

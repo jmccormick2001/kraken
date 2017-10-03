@@ -17,7 +17,7 @@ import (
 	policylogoperator "github.com/crunchydata/kraken/operator/cluster"
 )
 
-// Watcher is an example of watching on resource create/update/delete events
+// Watcher is an policylog of watching on resource create/update/delete events
 type PgpolicylogController struct {
 	PgpolicylogClientset *kubernetes.Clientset
 	PgpolicylogClient    *rest.RESTClient
@@ -69,43 +69,43 @@ func (c *PgpolicylogController) watchPgpolicylogs(ctx context.Context) (cache.Co
 }
 
 func (c *PgpolicylogController) onAdd(obj interface{}) {
-	example := obj.(*crv1.Pgpolicylog)
-	fmt.Printf("[PgpolicylogCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
-	if example.Status.State == crv1.PgpolicylogStateProcessed {
-		log.Infoln("pgpolicylog " + example.ObjectMeta.Name + " already processed")
+	policylog := obj.(*crv1.Pgpolicylog)
+	fmt.Printf("[PgpolicylogCONTROLLER] OnAdd %s\n", policylog.ObjectMeta.SelfLink)
+	if policylog.Status.State == crv1.PgpolicylogStateProcessed {
+		log.Infoln("pgpolicylog " + policylog.ObjectMeta.Name + " already processed")
 		return
 	}
 
 	// NEVER modify objects from the store. It's a read-only, local cache.
-	// You can use exampleScheme.Copy() to make a deep copy of original object and modify this copy
+	// You can use policylogScheme.Copy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
-	copyObj, err := c.PgpolicylogScheme.Copy(example)
+	copyObj, err := c.PgpolicylogScheme.Copy(policylog)
 	if err != nil {
-		fmt.Printf("ERROR creating a deep copy of example object: %v\n", err)
+		fmt.Printf("ERROR creating a deep copy of policylog object: %v\n", err)
 		return
 	}
 
-	exampleCopy := copyObj.(*crv1.Pgpolicylog)
-	exampleCopy.Status = crv1.PgpolicylogStatus{
+	policylogCopy := copyObj.(*crv1.Pgpolicylog)
+	policylogCopy.Status = crv1.PgpolicylogStatus{
 		State:   crv1.PgpolicylogStateProcessed,
 		Message: "Successfully processed Pgpolicylog by controller",
 	}
 
 	err = c.PgpolicylogClient.Put().
-		Name(example.ObjectMeta.Name).
-		Namespace(example.ObjectMeta.Namespace).
+		Name(policylog.ObjectMeta.Name).
+		Namespace(policylog.ObjectMeta.Namespace).
 		Resource(crv1.PgpolicylogResourcePlural).
-		Body(exampleCopy).
+		Body(policylogCopy).
 		Do().
 		Error()
 
 	if err != nil {
 		fmt.Printf("ERROR updating status: %v\n", err)
 	} else {
-		fmt.Printf("UPDATED status: %#v\n", exampleCopy)
+		fmt.Printf("UPDATED status: %#v\n", policylogCopy)
 	}
 
-	policylogoperator.AddPolicylog(c.PgpolicylogClientset, c.PgpolicylogClient, exampleCopy, example.ObjectMeta.Namespace)
+	policylogoperator.AddPolicylog(c.PgpolicylogClientset, c.PgpolicylogClient, policylogCopy, policylog.ObjectMeta.Namespace)
 }
 
 func (c *PgpolicylogController) onUpdate(oldObj, newObj interface{}) {
@@ -116,6 +116,6 @@ func (c *PgpolicylogController) onUpdate(oldObj, newObj interface{}) {
 }
 
 func (c *PgpolicylogController) onDelete(obj interface{}) {
-	example := obj.(*crv1.Pgpolicylog)
-	fmt.Printf("[PgpolicylogCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
+	policylog := obj.(*crv1.Pgpolicylog)
+	fmt.Printf("[PgpolicylogCONTROLLER] OnDelete %s\n", policylog.ObjectMeta.SelfLink)
 }

@@ -15,7 +15,7 @@ import (
 	//policycontroller "github.com/crunchydata/kraken/operator/policy"
 )
 
-// Watcher is an example of watching on resource create/update/delete events
+// Watcher is an policy of watching on resource create/update/delete events
 type PgpolicyController struct {
 	PgpolicyClient    *rest.RESTClient
 	PgpolicyScheme    *runtime.Scheme
@@ -67,42 +67,42 @@ func (c *PgpolicyController) watchPgpolicys(ctx context.Context) (cache.Controll
 }
 
 func (c *PgpolicyController) onAdd(obj interface{}) {
-	example := obj.(*crv1.Pgpolicy)
-	fmt.Printf("[PgpolicyCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
-	if example.Status.State == crv1.PgpolicyStateProcessed {
-		log.Info("pgpolicy " + example.ObjectMeta.Name + " already processed")
+	policy := obj.(*crv1.Pgpolicy)
+	fmt.Printf("[PgpolicyCONTROLLER] OnAdd %s\n", policy.ObjectMeta.SelfLink)
+	if policy.Status.State == crv1.PgpolicyStateProcessed {
+		log.Info("pgpolicy " + policy.ObjectMeta.Name + " already processed")
 		return
 	}
 
 	// NEVER modify objects from the store. It's a read-only, local cache.
-	// You can use exampleScheme.Copy() to make a deep copy of original object and modify this copy
+	// You can use policyScheme.Copy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
-	copyObj, err := c.PgpolicyScheme.Copy(example)
+	copyObj, err := c.PgpolicyScheme.Copy(policy)
 	if err != nil {
-		fmt.Printf("ERROR creating a deep copy of example object: %v\n", err)
+		fmt.Printf("ERROR creating a deep copy of policy object: %v\n", err)
 		return
 	}
 
-	exampleCopy := copyObj.(*crv1.Pgpolicy)
-	exampleCopy.Status = crv1.PgpolicyStatus{
+	policyCopy := copyObj.(*crv1.Pgpolicy)
+	policyCopy.Status = crv1.PgpolicyStatus{
 		State:   crv1.PgpolicyStateProcessed,
 		Message: "Successfully processed Pgpolicy by controller",
 	}
 
 	err = c.PgpolicyClient.Put().
-		Name(example.ObjectMeta.Name).
-		Namespace(example.ObjectMeta.Namespace).
+		Name(policy.ObjectMeta.Name).
+		Namespace(policy.ObjectMeta.Namespace).
 		Resource(crv1.PgpolicyResourcePlural).
-		Body(exampleCopy).
+		Body(policyCopy).
 		Do().
 		Error()
 
 	if err != nil {
 		fmt.Printf("ERROR updating status: %v\n", err)
 	} else {
-		fmt.Printf("UPDATED status: %#v\n", exampleCopy)
+		fmt.Printf("UPDATED status: %#v\n", policyCopy)
 	}
-	//policyoperator.AddPolicyBase(c.PgpolicyClientset, c.PgpolicyClient, exampleCopy, example.ObjectMeta.Namespace)
+	//policyoperator.AddPolicyBase(c.PgpolicyClientset, c.PgpolicyClient, policyCopy, policy.ObjectMeta.Namespace)
 }
 
 func (c *PgpolicyController) onUpdate(oldObj, newObj interface{}) {
@@ -113,18 +113,18 @@ func (c *PgpolicyController) onUpdate(oldObj, newObj interface{}) {
 }
 
 func (c *PgpolicyController) onDelete(obj interface{}) {
-	example := obj.(*crv1.Pgpolicy)
-	fmt.Printf("[PgpolicyCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
+	policy := obj.(*crv1.Pgpolicy)
+	fmt.Printf("[PgpolicyCONTROLLER] OnDelete %s\n", policy.ObjectMeta.SelfLink)
 	err := c.PgpolicyClient.Delete().
 		Resource(crv1.PgpolicyResourcePlural).
-		Namespace(example.ObjectMeta.Namespace).
-		Name(example.ObjectMeta.Name).
+		Namespace(policy.ObjectMeta.Namespace).
+		Name(policy.ObjectMeta.Name).
 		Do().
 		Error()
 
 	if err != nil {
 		fmt.Printf("ERROR deleting pgpolicy: %v\n", err)
 	} else {
-		fmt.Println("DELETED pgpolicy " + example.ObjectMeta.Name)
+		fmt.Println("DELETED pgpolicy " + policy.ObjectMeta.Name)
 	}
 }
