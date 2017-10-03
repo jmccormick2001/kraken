@@ -18,8 +18,11 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	//"github.com/crunchydata/kraken/util"
+	"encoding/json"
 	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
+	"github.com/crunchydata/kraken/apiservermsgs"
 	"github.com/crunchydata/kraken/util"
+	"net/http"
 
 	"github.com/spf13/viper"
 	"io/ioutil"
@@ -30,24 +33,36 @@ import (
 )
 
 func showPolicy(args []string) {
-	//get a list of all policies
-	policyList := crv1.PgpolicyList{}
-	err := RestClient.Get().
-		Resource(crv1.PgpolicyResourcePlural).
-		Namespace(Namespace).
-		Do().Into(&policyList)
+
+	url := APISERVER_URL + "/policies/somename?showsecrets=true&other=thing"
+	fmt.Println("showPolicy called..." + url)
+
+	action := "GET"
+	req, err := http.NewRequest(action, url, nil)
 	if err != nil {
-		log.Error("error getting list of policies" + err.Error())
+		log.Fatal("NewRequest: ", err)
 		return
 	}
 
-	if len(policyList.Items) == 0 {
-		fmt.Println("no policies found")
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal("Do: ", err)
 		return
 	}
 
-	itemFound := false
+	defer resp.Body.Close()
 
+	var response apiservermsgs.ShowPolicyResponse
+
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		log.Println(err)
+	}
+
+	fmt.Printf("response = %v\n", response)
+
+	/**
 	//each arg represents a policy name or the special 'all' value
 	for _, arg := range args {
 		for _, policy := range policyList.Items {
@@ -66,6 +81,7 @@ func showPolicy(args []string) {
 		}
 		itemFound = false
 	}
+	*/
 }
 
 func createPolicy(args []string) {

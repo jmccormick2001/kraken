@@ -23,7 +23,7 @@ runmain:	check-go-vars
 runapiserver:	check-go-vars
 	apiserver --kubeconfig=/etc/kubernetes/admin.conf
 apiserver:	check-go-vars
-	cd apiserver && go install apiserver.go
+	go install apiserver.go
 rpgo:	check-go-vars
 	cd rpgo && go install rpgo.go
 pgo:	check-go-vars

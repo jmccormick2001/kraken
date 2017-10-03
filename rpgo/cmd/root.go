@@ -20,13 +20,13 @@ import (
 	"strconv"
 
 	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
-	"github.com/crunchydata/kraken/client"
+	//"github.com/crunchydata/kraken/client"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"k8s.io/client-go/tools/clientcmd"
+	//"k8s.io/client-go/tools/clientcmd"
 
 	"k8s.io/api/core/v1"
 	//apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -38,7 +38,7 @@ import (
 var RED, GREEN func(a ...interface{}) string
 
 var cfgFile string
-var KubeconfigPath string
+var APISERVER_URL, KubeconfigPath string
 var Labelselector string
 var DebugFlag bool
 var Namespace string
@@ -114,6 +114,14 @@ func initConfig() {
 		log.Debug("config file not found")
 	}
 
+	APISERVER_URL = viper.GetString("PGO.APISERVER_URL")
+	if APISERVER_URL == "" {
+		APISERVER_URL = os.Getenv("APISERVER_URL")
+	}
+	if APISERVER_URL == "" {
+		log.Debug("PGO.APISERVER_URL or APISERVER_URL env var is required")
+		os.Exit(2)
+	}
 	if DebugFlag || viper.GetBool("PGO.DEBUG") {
 		log.Debug("debug flag is set to true")
 		log.SetLevel(log.DebugLevel)
@@ -141,7 +149,7 @@ func initConfig() {
 
 	validateConfig()
 
-	ConnectToKube()
+	//ConnectToKube()
 
 	/**
 	file, err2 := os.Create("/tmp/pgo-bash-completion.out")
@@ -246,32 +254,4 @@ func validateConfig() {
 		}
 	}
 
-}
-
-func ConnectToKube() {
-
-	config, err := buildConfig(KubeconfigPath)
-	if err != nil {
-		panic(err)
-	}
-
-	//Clientset, err = apiextensionsclient.NewForConfig(config)
-	Clientset, err = kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err)
-	}
-
-	// make a new config for our extension's API group, using the first config as a baseline
-	RestClient, _, err = client.NewClient(config)
-	if err != nil {
-		panic(err)
-	}
-
-}
-
-func buildConfig(kubeconfig string) (*rest.Config, error) {
-	if kubeconfig != "" {
-		return clientcmd.BuildConfigFromFlags("", kubeconfig)
-	}
-	return rest.InClusterConfig()
 }
