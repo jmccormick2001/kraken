@@ -234,7 +234,7 @@ func AddUpgradeBase(clientset *kubernetes.Clientset, client *rest.RESTClient, up
 
 }
 
-func UpdateClusterBase(clientset *kubernetes.Clientset, client *rest.RESTClient, cl *crv1.Pgcluster, oldcluster *crv1.Pgcluster, namespace string) {
+func ScaleCluster(clientset *kubernetes.Clientset, client *rest.RESTClient, cl *crv1.Pgcluster, oldcluster *crv1.Pgcluster, namespace string) {
 
 	//log.Debug("updateCluster on pgcluster called..something changed")
 
