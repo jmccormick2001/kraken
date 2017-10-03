@@ -170,6 +170,12 @@ func DeleteDatabaseSecrets(clientset *kubernetes.Clientset, db, namespace string
 
 func GetPasswordFromSecret(clientset *kubernetes.Clientset, namespace string, secretName string) (string, error) {
 
+	if clientset == nil {
+		log.Errorln("clientset is nil")
+	}
+	log.Infoln("namespace=" + namespace)
+	log.Infoln("secretName=" + secretName)
+
 	options := meta_v1.GetOptions{}
 	secret, err := clientset.Core().Secrets(namespace).Get(secretName, options)
 	if errors.IsNotFound(err) {

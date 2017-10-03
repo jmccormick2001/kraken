@@ -76,7 +76,7 @@ func GetPolicySQL(restclient *rest.RESTClient, namespace, policyName string) (st
 			return p.Spec.Sql, err
 		}
 	} else if kerrors.IsNotFound(err) {
-		log.Error("getPolicySQL policy not found using " + policyName)
+		log.Error("getPolicySQL policy not found using " + policyName + " in namespace " + namespace)
 		return "", err
 	} else {
 		log.Error(err)

@@ -22,14 +22,14 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"k8s.io/apimachinery/pkg/fields"
+	//"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
 	//"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/api/core/v1"
 
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/cache"
+	//"k8s.io/client-go/tools/cache"
 	"os"
 	"strings"
 	"time"
@@ -136,47 +136,7 @@ func applyPolicies(namespace string, clientset *kubernetes.Clientset, restclient
 	}
 }
 
-func ProcessPolicylog(clientset *kubernetes.Clientset, restclient *rest.RESTClient, stopchan chan struct{}, namespace string) {
-
-	eventchan := make(chan *crv1.Pgpolicylog)
-
-	source := cache.NewListWatchFromClient(restclient, crv1.PgpolicylogResourcePlural, namespace, fields.Everything())
-
-	createAddHandler := func(obj interface{}) {
-		policylog := obj.(*crv1.Pgpolicylog)
-		eventchan <- policylog
-		addPolicylog(clientset, restclient, policylog, namespace)
-	}
-	createDeleteHandler := func(obj interface{}) {
-	}
-
-	updateHandler := func(old interface{}, obj interface{}) {
-	}
-	_, controller := cache.NewInformer(
-		source,
-		&crv1.Pgpolicylog{},
-		time.Second*10,
-		cache.ResourceEventHandlerFuncs{
-			AddFunc:    createAddHandler,
-			UpdateFunc: updateHandler,
-			DeleteFunc: createDeleteHandler,
-		})
-
-	go controller.Run(stopchan)
-
-	for {
-		select {
-		case event := <-eventchan:
-			//log.Infof("%#v\n", event)
-			if event == nil {
-				log.Info("event was null")
-			}
-		}
-	}
-
-}
-
-func addPolicylog(clientset *kubernetes.Clientset, restclient *rest.RESTClient, policylog *crv1.Pgpolicylog, namespace string) {
+func AddPolicylog(clientset *kubernetes.Clientset, restclient *rest.RESTClient, policylog *crv1.Pgpolicylog, namespace string) {
 	policylogname := policylog.Spec.PolicyName + policylog.Spec.ClusterName
 	log.Infof("policylog added=%s\n", policylogname)
 

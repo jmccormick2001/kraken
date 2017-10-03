@@ -136,8 +136,9 @@ func main() {
 		PgclusterClientset: Clientset,
 	}
 	pgUpgradecontroller := examplecontroller.PgupgradeController{
-		PgupgradeClient: exampleClient,
-		PgupgradeScheme: exampleScheme,
+		PgupgradeClientset: Clientset,
+		PgupgradeClient:    exampleClient,
+		PgupgradeScheme:    exampleScheme,
 	}
 	pgBackupcontroller := examplecontroller.PgbackupController{
 		PgbackupClient:    exampleClient,
@@ -150,8 +151,9 @@ func main() {
 		PgpolicyClientset: Clientset,
 	}
 	pgPolicylogcontroller := examplecontroller.PgpolicylogController{
-		PgpolicylogClient: exampleClient,
-		PgpolicylogScheme: exampleScheme,
+		PgpolicylogClientset: Clientset,
+		PgpolicylogClient:    exampleClient,
+		PgpolicylogScheme:    exampleScheme,
 	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())

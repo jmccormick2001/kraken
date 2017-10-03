@@ -7,6 +7,7 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 
@@ -15,8 +16,9 @@ import (
 
 // Watcher is an example of watching on resource create/update/delete events
 type PgupgradeController struct {
-	PgupgradeClient *rest.RESTClient
-	PgupgradeScheme *runtime.Scheme
+	PgupgradeClient    *rest.RESTClient
+	PgupgradeClientset *kubernetes.Clientset
+	PgupgradeScheme    *runtime.Scheme
 }
 
 // Run starts an Example resource controller
