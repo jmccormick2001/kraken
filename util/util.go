@@ -229,15 +229,14 @@ func PatchClusterTPR(restclient *rest.RESTClient, labelMap map[string]string, ol
 	if err != nil {
 		return err
 	}
-	log.Error("FIX THIS")
-	/**
-	if oldCrd.Metadata.Labels == nil {
-		oldCrd.Metadata.Labels = make(map[string]string)
+
+	if oldCrd.ObjectMeta.Labels == nil {
+		oldCrd.ObjectMeta.Labels = make(map[string]string)
 	}
 	for k, v := range labelMap {
-		oldCrd.Metadata.Labels[k] = v
+		oldCrd.ObjectMeta.Labels[k] = v
 	}
-	*/
+
 	var newData, patchBytes []byte
 	newData, err = json.Marshal(oldCrd)
 	if err != nil {

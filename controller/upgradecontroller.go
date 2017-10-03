@@ -3,7 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
-
+	log "github.com/Sirupsen/logrus"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -15,7 +15,7 @@ import (
 	upgradeoperator "github.com/crunchydata/kraken/operator/upgrade"
 )
 
-// Watcher is an example of watching on resource create/update/delete events
+// Watcher is an upgrade of watching on resource create/update/delete events
 type PgupgradeController struct {
 	PgupgradeClient    *rest.RESTClient
 	PgupgradeClientset *kubernetes.Clientset
@@ -67,39 +67,44 @@ func (c *PgupgradeController) watchPgupgrades(ctx context.Context) (cache.Contro
 }
 
 func (c *PgupgradeController) onAdd(obj interface{}) {
-	example := obj.(*crv1.Pgupgrade)
-	fmt.Printf("[PgupgradeCONTROLLER] OnAdd %s\n", example.ObjectMeta.SelfLink)
+	upgrade := obj.(*crv1.Pgupgrade)
+	fmt.Printf("[PgupgradeCONTROLLER] OnAdd %s\n", upgrade.ObjectMeta.SelfLink)
 
-	// NEVER modify objects from the store. It's a read-only, local cache.
-	// You can use exampleScheme.Copy() to make a deep copy of original object and modify this copy
-	// Or create a copy manually for better performance
-	copyObj, err := c.PgupgradeScheme.Copy(example)
-	if err != nil {
-		fmt.Printf("ERROR creating a deep copy of example object: %v\n", err)
+	if upgrade.Status.State == crv1.PgupgradeStateProcessed {
+		log.Info("pgupgrade " + upgrade.ObjectMeta.Name + " already processed")
 		return
 	}
 
-	exampleCopy := copyObj.(*crv1.Pgupgrade)
-	exampleCopy.Status = crv1.PgupgradeStatus{
+	// NEVER modify objects from the store. It's a read-only, local cache.
+	// You can use upgradeScheme.Copy() to make a deep copy of original object and modify this copy
+	// Or create a copy manually for better performance
+	copyObj, err := c.PgupgradeScheme.Copy(upgrade)
+	if err != nil {
+		fmt.Printf("ERROR creating a deep copy of upgrade object: %v\n", err)
+		return
+	}
+
+	upgradeCopy := copyObj.(*crv1.Pgupgrade)
+	upgradeCopy.Status = crv1.PgupgradeStatus{
 		State:   crv1.PgupgradeStateProcessed,
 		Message: "Successfully processed Pgupgrade by controller",
 	}
 
 	err = c.PgupgradeClient.Put().
-		Name(example.ObjectMeta.Name).
-		Namespace(example.ObjectMeta.Namespace).
+		Name(upgrade.ObjectMeta.Name).
+		Namespace(upgrade.ObjectMeta.Namespace).
 		Resource(crv1.PgupgradeResourcePlural).
-		Body(exampleCopy).
+		Body(upgradeCopy).
 		Do().
 		Error()
 
 	if err != nil {
 		fmt.Printf("ERROR updating status: %v\n", err)
 	} else {
-		fmt.Printf("UPDATED status: %#v\n", exampleCopy)
+		fmt.Printf("UPDATED status: %#v\n", upgradeCopy)
 	}
 
-	upgradeoperator.AddUpgrade(c.PgupgradeClientset, c.PgupgradeClient, exampleCopy, example.ObjectMeta.Namespace)
+	upgradeoperator.AddUpgrade(c.PgupgradeClientset, c.PgupgradeClient, upgradeCopy, upgrade.ObjectMeta.Namespace)
 }
 
 func (c *PgupgradeController) onUpdate(oldObj, newObj interface{}) {
@@ -110,7 +115,7 @@ func (c *PgupgradeController) onUpdate(oldObj, newObj interface{}) {
 }
 
 func (c *PgupgradeController) onDelete(obj interface{}) {
-	example := obj.(*crv1.Pgupgrade)
-	fmt.Printf("[PgupgradeCONTROLLER] OnDelete %s\n", example.ObjectMeta.SelfLink)
-	upgradeoperator.DeleteUpgrade(c.PgupgradeClientset, c.PgupgradeClient, example, example.ObjectMeta.Namespace)
+	upgrade := obj.(*crv1.Pgupgrade)
+	fmt.Printf("[PgupgradeCONTROLLER] OnDelete %s\n", upgrade.ObjectMeta.SelfLink)
+	upgradeoperator.DeleteUpgrade(c.PgupgradeClientset, c.PgupgradeClient, upgrade, upgrade.ObjectMeta.Namespace)
 }

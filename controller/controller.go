@@ -19,7 +19,6 @@ package controller
 import (
 	"context"
 	"fmt"
-
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
