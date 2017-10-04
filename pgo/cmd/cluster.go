@@ -76,8 +76,8 @@ func showCluster(args []string) {
 			//fmt.Println("")
 			if arg == "all" || cluster.Spec.Name == arg {
 				itemFound = true
-				if PostgresVersion == "" || (PostgresVersion != "" && cluster.Spec.POSTGRES_FULL_VERSION == PostgresVersion) {
-					fmt.Println("cluster : " + cluster.Spec.Name + " (" + cluster.Spec.POSTGRES_FULL_VERSION + ")")
+				if PostgresVersion == "" || (PostgresVersion != "" && cluster.Spec.CCP_IMAGE_TAG == PostgresVersion) {
+					fmt.Println("cluster : " + cluster.Spec.Name + " (" + cluster.Spec.CCP_IMAGE_TAG + ")")
 					log.Debug("listing cluster " + arg)
 					log.Debugf("last password update %v\n", cluster.Spec.PSW_LAST_UPDATE)
 					//list the deployments
