@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"bytes"
+	//"bytes"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	//"github.com/crunchydata/kraken/util"
@@ -40,63 +40,70 @@ func showPolicy(args []string) {
 	//	values := url.Values{"args": {string(jsonstr[:])}}
 	//	encoded := values.Encode()
 
-	b := new(bytes.Buffer)
-	json.NewEncoder(b).Encode(args)
-	s := new(bytes.Buffer)
-	json.NewEncoder(s).Encode("foodaddy")
+	for _, v := range args {
+		//b := new(bytes.Buffer)
+		//json.NewEncoder(b).Encode(args)
+		//s := new(bytes.Buffer)
+		//json.NewEncoder(s).Encode("foodaddy")
 
-	//url := APISERVER_URL + "/policies/somename?" + encoded
-	fmt.Println("selector=" + Selector)
-	//fmt.Println("labelselector=" + LabelSelector)
-	//url := APISERVER_URL + "/policies/" + b.String() + "?selector=" + s.String()
-	read_line := strings.TrimSuffix(b.String(), "\n")
-	url := APISERVER_URL + "/policies/" + read_line + "?selector=name=foodaddy"
-	fmt.Println("showPolicy called...[" + url + "]")
+		//url := APISERVER_URL + "/policies/somename?" + encoded
+		//fmt.Println("labelselector=" + LabelSelector)
+		//url := APISERVER_URL + "/policies/" + b.String() + "?selector=" + s.String()
+		//read_line := strings.TrimSuffix(b.String(), "\n")
+		//url := APISERVER_URL + "/policies/" + read_line + "?selector=name=foodaddy"
+		if Namespace == "" {
+			log.Error("Namespace can not be empty")
+			return
+		}
+		url := APISERVER_URL + "/policies/" + v + "?namespace=" + Namespace
+		log.Debug("showPolicy called...[" + url + "]")
 
-	action := "GET"
-	req, err := http.NewRequest(action, url, nil)
-	if err != nil {
-		log.Info("here after new req")
-		log.Fatal("NewRequest: ", err)
-		return
+		action := "GET"
+		req, err := http.NewRequest(action, url, nil)
+		if err != nil {
+			//log.Info("here after new req")
+			log.Fatal("NewRequest: ", err)
+			return
+		}
+
+		client := &http.Client{}
+		//log.Info("here after new client")
+
+		resp, err := client.Do(req)
+		//log.Info("here after Do")
+		if err != nil {
+			log.Fatal("Do: ", err)
+			return
+		}
+
+		//log.Info("here after Do2")
+		defer resp.Body.Close()
+
+		var response apiservermsgs.ShowPolicyResponse
+
+		if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+			log.Printf("%v\n", resp.Body)
+			log.Error(err)
+			log.Println(err)
+			return
+		}
+
+		if len(response.PolicyList.Items) == 0 {
+			fmt.Println("no policies found")
+			return
+		}
+
+		log.Debugf("response = %v\n", response)
+
+		for _, policy := range response.PolicyList.Items {
+			fmt.Println("")
+			fmt.Println("policy : " + policy.Spec.Name)
+			fmt.Println(TREE_BRANCH + "url : " + policy.Spec.Url)
+			fmt.Println(TREE_BRANCH + "status : " + policy.Spec.Status)
+			fmt.Println(TREE_TRUNK + "sql : " + policy.Spec.Sql)
+		}
 	}
 
-	client := &http.Client{}
-	log.Info("here after new client")
-
-	resp, err := client.Do(req)
-	log.Info("here after Do")
-	if err != nil {
-		log.Fatal("Do: ", err)
-		return
-	}
-
-	log.Info("here after Do2")
-	defer resp.Body.Close()
-
-	var response apiservermsgs.ShowPolicyResponse
-
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		log.Printf("%v\n", resp.Body)
-		log.Error(err)
-		log.Println(err)
-		return
-	}
-
-	if len(response.PolicyList.Items) == 0 {
-		fmt.Println("no policies found")
-		return
-	}
-
-	log.Debugf("response = %v\n", response)
-
-	for _, policy := range response.PolicyList.Items {
-		fmt.Println("")
-		fmt.Println("policy : " + policy.Spec.Name)
-		fmt.Println(TREE_BRANCH + "url : " + policy.Spec.Url)
-		fmt.Println(TREE_BRANCH + "status : " + policy.Spec.Status)
-		fmt.Println(TREE_TRUNK + "sql : " + policy.Spec.Sql)
-	}
 }
 
 func createPolicy(args []string) {

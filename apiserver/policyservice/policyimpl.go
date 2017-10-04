@@ -61,21 +61,32 @@ func CreatePolicy(RestClient *rest.RESTClient, Namespace string, policyName, pol
 
 }
 
-func ShowPolicy(RestClient *rest.RESTClient, Namespace string, args []string) crv1.PgpolicyList {
-
-	//get a list of all policies
+func ShowPolicy(RestClient *rest.RESTClient, Namespace string, name string) crv1.PgpolicyList {
 	policyList := crv1.PgpolicyList{}
-	err := RestClient.Get().
-		Resource(crv1.PgpolicyResourcePlural).
-		Namespace(Namespace).
-		Do().Into(&policyList)
-	if err != nil {
-		log.Error("error getting list of policies" + err.Error())
-		return policyList
-	}
 
-	if len(policyList.Items) == 0 {
-		log.Infoln("no policies found")
+	if name == "all" {
+		//get a list of all policies
+		err := RestClient.Get().
+			Resource(crv1.PgpolicyResourcePlural).
+			Namespace(Namespace).
+			Do().Into(&policyList)
+		if err != nil {
+			log.Error("error getting list of policies" + err.Error())
+			return policyList
+		}
+	} else {
+		policy := crv1.Pgpolicy{}
+		err := RestClient.Get().
+			Resource(crv1.PgpolicyResourcePlural).
+			Namespace(Namespace).
+			Name(name).
+			Do().Into(&policy)
+		if err != nil {
+			log.Error("error getting list of policies" + err.Error())
+			return policyList
+		}
+		policyList.Items = make([]crv1.Pgpolicy, 1)
+		policyList.Items[0] = policy
 	}
 
 	return policyList

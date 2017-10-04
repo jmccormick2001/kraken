@@ -26,17 +26,14 @@ func ShowPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	log.Infof(" vars are %v\n", vars)
 
-	argsin := vars["args"]
-	log.Infof(" args are %v\n", argsin)
+	policyname := vars["name"]
+	log.Infof(" name arg is %v\n", policyname)
 
-	selectorarg := vars["selector"]
-	log.Infof(" selector arg is %v\n", selectorarg)
-
-	selectorParam := r.URL.Query().Get("selector")
-	if selectorParam != "" {
-		log.Infoln("selector param was [" + selectorParam + "]")
+	namespace := r.URL.Query().Get("namespace")
+	if namespace != "" {
+		log.Infoln("namespace param was [" + namespace + "]")
 	} else {
-		log.Infoln("selector param was null")
+		log.Infoln("namespace param was null")
 	}
 
 	switch r.Method {
@@ -50,10 +47,7 @@ func ShowPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	resp := msgs.ShowPolicyResponse{}
-	Namespace := "default"
-	args := make([]string, 1)
-	args[0] = "all"
-	resp.PolicyList = ShowPolicy(apiserver.RestClient, Namespace, args)
+	resp.PolicyList = ShowPolicy(apiserver.RestClient, namespace, policyname)
 
 	json.NewEncoder(w).Encode(resp)
 }
