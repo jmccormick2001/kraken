@@ -5,10 +5,10 @@ import (
 )
 
 type CreatePolicyRequest struct {
-	Name       string
-	PolicyURL  string
-	PolicyFile string
-	Namespace  string
+	Name      string
+	URL       string
+	SQL       string
+	Namespace string
 }
 type ApplyResults struct {
 	Results []string

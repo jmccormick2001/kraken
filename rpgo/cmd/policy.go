@@ -123,8 +123,19 @@ func createPolicy(args []string) {
 
 	r := new(apiservermsgs.CreatePolicyRequest)
 	r.Name = args[0]
-	r.PolicyURL = PolicyURL
-	r.PolicyFile = "some sql goes here from PolicyFile"
+
+	if PolicyURL != "" {
+		r.URL = PolicyURL
+	}
+	if PolicyFile != "" {
+		r.SQL, err = getPolicyString(PolicyFile)
+
+		if err != nil {
+			log.Error(err)
+			return
+		}
+	}
+
 	r.Namespace = Namespace
 
 	jsonValue, _ := json.Marshal(r)
@@ -166,34 +177,6 @@ func createPolicy(args []string) {
 
 	fmt.Println("created policy")
 
-}
-
-func getPolicyParams(name string) (*crv1.Pgpolicy, error) {
-
-	var err error
-
-	spec := crv1.PgpolicySpec{}
-	spec.Name = name
-
-	if PolicyURL != "" {
-		spec.Url = PolicyURL
-	}
-	if PolicyFile != "" {
-		spec.Sql, err = getPolicyString(PolicyFile)
-
-		if err != nil {
-			return &crv1.Pgpolicy{}, err
-		}
-	}
-
-	newInstance := &crv1.Pgpolicy{
-		ObjectMeta: meta_v1.ObjectMeta{
-			Name: name,
-		},
-		Spec: spec,
-	}
-
-	return newInstance, err
 }
 
 func getPolicyString(filename string) (string, error) {
