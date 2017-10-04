@@ -3,9 +3,9 @@ package policyservice
 import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
-	crv1 "github.com/crunchydata/kraken/apis/cr/v1"
+	//crv1 "github.com/crunchydata/kraken/apis/cr/v1"
 	apiserver "github.com/crunchydata/kraken/apiserver"
-	"github.com/crunchydata/kraken/apiservermsgs"
+	msgs "github.com/crunchydata/kraken/apiservermsgs"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -14,7 +14,7 @@ import (
 // parameters secretfrom
 func CreatePolicyHandler(w http.ResponseWriter, r *http.Request) {
 	log.Infoln("policyservice.CreatePolicyHandler called")
-	var request CreatePolicyRequest
+	var request msgs.CreatePolicyRequest
 	_ = json.NewDecoder(r.Body).Decode(&request)
 
 	log.Infoln("policyservice.CreatePolicyHandler got request " + request.Name)
@@ -36,7 +36,7 @@ func ShowPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 
-	resp := apiservermsgs.ShowPolicyResponse{}
+	resp := msgs.ShowPolicyResponse{}
 	Namespace := "default"
 	args := make([]string, 1)
 	args[0] = "all"
@@ -53,7 +53,7 @@ func ApplyPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	log.Infof(" vars are %v\n", vars)
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	c := new(ApplyResults)
+	c := new(msgs.ApplyResults)
 	c.Results = []string{"one", "two"}
 	json.NewEncoder(w).Encode(c)
 }
