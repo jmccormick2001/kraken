@@ -129,7 +129,8 @@ func AddClusterBase(clientset *kubernetes.Clientset, client *rest.RESTClient, cl
 		return
 	}
 
-	setFullVersion(client, cl, namespace)
+	//replaced with ccpimagetag instead of pg version
+	//setFullVersion(client, cl, namespace)
 
 	strategy.AddCluster(clientset, client, cl, namespace, pvcName)
 
@@ -144,6 +145,7 @@ func AddClusterBase(clientset *kubernetes.Clientset, client *rest.RESTClient, cl
 
 }
 
+/**
 func setFullVersion(restclient *rest.RESTClient, cl *crv1.Pgcluster, namespace string) {
 	//get full version from image tag
 	fullVersion := util.GetFullVersion(cl.Spec.CCP_IMAGE_TAG)
@@ -155,6 +157,7 @@ func setFullVersion(restclient *rest.RESTClient, cl *crv1.Pgcluster, namespace s
 	}
 
 }
+*/
 
 func DeleteClusterBase(clientset *kubernetes.Clientset, client *rest.RESTClient, cl *crv1.Pgcluster, namespace string) {
 
