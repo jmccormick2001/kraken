@@ -18,6 +18,12 @@ func CreatePolicyHandler(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&request)
 
 	log.Infoln("policyservice.CreatePolicyHandler got request " + request.Name)
+
+	err := CreatePolicy(apiserver.RestClient, request.Namespace, request.Name, request.PolicyURL, request.PolicyFile)
+	if err != nil {
+		log.Error(err.Error())
+		log.Infoln("error would be reported back to caller!!!!")
+	}
 }
 
 // returns a ShowPolicyResponse

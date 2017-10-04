@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	//"bytes"
+	"bytes"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	//"github.com/crunchydata/kraken/util"
@@ -108,49 +108,64 @@ func showPolicy(args []string) {
 
 func createPolicy(args []string) {
 
-	var err error
-
-	for _, arg := range args {
-		log.Debug("create policy called for " + arg)
-		result := crv1.Pgpolicy{}
-
-		// error if it already exists
-		err = RestClient.Get().
-			Resource(crv1.PgpolicyResourcePlural).
-			Namespace(Namespace).
-			Name(arg).
-			Do().
-			Into(&result)
-		if err == nil {
-			log.Debug("pgpolicy " + arg + " was found so we will not create it")
-			break
-		} else if kerrors.IsNotFound(err) {
-			log.Debug("pgpolicy " + arg + " not found so we will create it")
-		} else {
-			log.Error("error getting pgpolicy " + arg + err.Error())
-			break
-		}
-
-		// Create an instance of our TPR
-		newInstance, err := getPolicyParams(arg)
-		if err != nil {
-			log.Error(" error in policy parameters ")
-			log.Error(err.Error())
-			return
-		}
-
-		err = RestClient.Post().
-			Resource(crv1.PgpolicyResourcePlural).
-			Namespace(Namespace).
-			Body(newInstance).
-			Do().Into(&result)
-
-		if err != nil {
-			log.Error(" in creating Pgpolicy instance" + err.Error())
-		}
-		fmt.Println("created Pgpolicy " + arg)
-
+	if len(args) == 0 {
+		log.Error("policy name argument is required")
+		return
 	}
+	var err error
+	//PolicyURL, PolicyFile
+	if Namespace == "" {
+		log.Error("Namespace can not be empty")
+		return
+	}
+
+	//create the request
+
+	r := new(apiservermsgs.CreatePolicyRequest)
+	r.Name = args[0]
+	r.PolicyURL = PolicyURL
+	r.PolicyFile = "some sql goes here from PolicyFile"
+	r.Namespace = Namespace
+
+	jsonValue, _ := json.Marshal(r)
+
+	url := APISERVER_URL + "/policies"
+	log.Debug("createPolicy called...[" + url + "]")
+
+	action := "POST"
+	req, err := http.NewRequest(action, url, bytes.NewBuffer(jsonValue))
+	if err != nil {
+		//log.Info("here after new req")
+		log.Fatal("NewRequest: ", err)
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	//log.Info("here after new client")
+
+	resp, err := client.Do(req)
+	//log.Info("here after Do")
+	if err != nil {
+		log.Fatal("Do: ", err)
+		return
+	}
+
+	defer resp.Body.Close()
+
+	/**
+	var response apiservermsgs.CreatePolicyResponse
+
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		log.Error(err)
+		log.Println(err)
+		return
+	}
+	*/
+	log.Printf("response is %v\n", resp)
+
+	fmt.Println("created policy")
+
 }
 
 func getPolicyParams(name string) (*crv1.Pgpolicy, error) {

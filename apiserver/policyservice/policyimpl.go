@@ -12,7 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CreatePolicy(RestClient *rest.RESTClient, Namespace string, policyName, policyURL, policyFile string) {
+func CreatePolicy(RestClient *rest.RESTClient, Namespace, policyName, policyURL, policyFile string) error {
 	var err error
 
 	log.Debug("create policy called for " + policyName)
@@ -26,13 +26,13 @@ func CreatePolicy(RestClient *rest.RESTClient, Namespace string, policyName, pol
 		Do().
 		Into(&result)
 	if err == nil {
-		log.Debug("pgpolicy " + policyName + " was found so we will not create it")
-		return
+		log.Infoln("pgpolicy " + policyName + " was found so we will not create it")
+		return err
 	} else if kerrors.IsNotFound(err) {
 		log.Debug("pgpolicy " + policyName + " not found so we will create it")
 	} else {
 		log.Error("error getting pgpolicy " + policyName + err.Error())
-		return
+		return err
 	}
 
 	// Create an instance of our CRD
@@ -56,8 +56,10 @@ func CreatePolicy(RestClient *rest.RESTClient, Namespace string, policyName, pol
 
 	if err != nil {
 		log.Error(" in creating Pgpolicy instance" + err.Error())
+		return err
 	}
 	log.Infoln("created Pgpolicy " + policyName)
+	return err
 
 }
 
