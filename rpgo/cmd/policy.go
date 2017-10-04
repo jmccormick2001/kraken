@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	//"github.com/crunchydata/kraken/util"
@@ -23,6 +24,7 @@ import (
 	"github.com/crunchydata/kraken/apiservermsgs"
 	"github.com/crunchydata/kraken/util"
 	"net/http"
+	//"net/url"
 
 	"github.com/spf13/viper"
 	"io/ioutil"
@@ -34,54 +36,67 @@ import (
 
 func showPolicy(args []string) {
 
-	url := APISERVER_URL + "/policies/somename?showsecrets=true&other=thing"
-	fmt.Println("showPolicy called..." + url)
+	//	jsonstr, _ := json.Marshal(args)
+	//	values := url.Values{"args": {string(jsonstr[:])}}
+	//	encoded := values.Encode()
+
+	b := new(bytes.Buffer)
+	json.NewEncoder(b).Encode(args)
+	s := new(bytes.Buffer)
+	json.NewEncoder(s).Encode("foodaddy")
+
+	//url := APISERVER_URL + "/policies/somename?" + encoded
+	fmt.Println("selector=" + Selector)
+	//fmt.Println("labelselector=" + LabelSelector)
+	//url := APISERVER_URL + "/policies/" + b.String() + "?selector=" + s.String()
+	read_line := strings.TrimSuffix(b.String(), "\n")
+	url := APISERVER_URL + "/policies/" + read_line + "?selector=name=foodaddy"
+	fmt.Println("showPolicy called...[" + url + "]")
 
 	action := "GET"
 	req, err := http.NewRequest(action, url, nil)
 	if err != nil {
+		log.Info("here after new req")
 		log.Fatal("NewRequest: ", err)
 		return
 	}
 
 	client := &http.Client{}
+	log.Info("here after new client")
 
 	resp, err := client.Do(req)
+	log.Info("here after Do")
 	if err != nil {
 		log.Fatal("Do: ", err)
 		return
 	}
 
+	log.Info("here after Do2")
 	defer resp.Body.Close()
 
 	var response apiservermsgs.ShowPolicyResponse
 
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		log.Printf("%v\n", resp.Body)
+		log.Error(err)
 		log.Println(err)
+		return
 	}
 
-	fmt.Printf("response = %v\n", response)
-
-	/**
-	//each arg represents a policy name or the special 'all' value
-	for _, arg := range args {
-		for _, policy := range policyList.Items {
-			fmt.Println("")
-			if arg == "all" || policy.Spec.Name == arg {
-				itemFound = true
-				log.Debug("listing policy " + arg)
-				fmt.Println("policy : " + policy.Spec.Name)
-				fmt.Println(TREE_BRANCH + "url : " + policy.Spec.Url)
-				fmt.Println(TREE_BRANCH + "status : " + policy.Spec.Status)
-				fmt.Println(TREE_TRUNK + "sql : " + policy.Spec.Sql)
-			}
-		}
-		if !itemFound {
-			fmt.Println(arg + " was not found")
-		}
-		itemFound = false
+	if len(response.PolicyList.Items) == 0 {
+		fmt.Println("no policies found")
+		return
 	}
-	*/
+
+	log.Debugf("response = %v\n", response)
+
+	for _, policy := range response.PolicyList.Items {
+		fmt.Println("")
+		fmt.Println("policy : " + policy.Spec.Name)
+		fmt.Println(TREE_BRANCH + "url : " + policy.Spec.Url)
+		fmt.Println(TREE_BRANCH + "status : " + policy.Spec.Status)
+		fmt.Println(TREE_TRUNK + "sql : " + policy.Spec.Sql)
+	}
 }
 
 func createPolicy(args []string) {

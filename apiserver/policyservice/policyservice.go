@@ -26,6 +26,19 @@ func ShowPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	log.Infof(" vars are %v\n", vars)
 
+	argsin := vars["args"]
+	log.Infof(" args are %v\n", argsin)
+
+	selectorarg := vars["selector"]
+	log.Infof(" selector arg is %v\n", selectorarg)
+
+	selectorParam := r.URL.Query().Get("selector")
+	if selectorParam != "" {
+		log.Infoln("selector param was [" + selectorParam + "]")
+	} else {
+		log.Infoln("selector param was null")
+	}
+
 	switch r.Method {
 	case "GET":
 		log.Infoln("policyservice.ShowPolicyHandler GET called")

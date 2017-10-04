@@ -17,6 +17,8 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/clones", cloneservice.CreateCloneHandler)
 	r.HandleFunc("/policies", policyservice.CreatePolicyHandler)
+	//r.HandleFunc("/policies/{name}", policyservice.ShowPolicyHandler).
+	//Queries("selector", "{selector}").Methods("GET", "DELETE")
 	r.HandleFunc("/policies/{name}", policyservice.ShowPolicyHandler).Methods("GET", "DELETE")
 	r.HandleFunc("/policies/apply/{name}", policyservice.ApplyPolicyHandler)
 	r.HandleFunc("/upgrades", upgradeservice.CreateUpgradeHandler)
