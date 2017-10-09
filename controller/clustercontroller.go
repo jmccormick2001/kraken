@@ -109,8 +109,8 @@ func (c *PgclusterController) onAdd(obj interface{}) {
 func (c *PgclusterController) onUpdate(oldObj, newObj interface{}) {
 	oldExample := oldObj.(*crv1.Pgcluster)
 	newExample := newObj.(*crv1.Pgcluster)
-	fmt.Printf("[PgclusterCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
-	fmt.Printf("[PgclusterCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
+	//fmt.Printf("[PgclusterCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
+	//fmt.Printf("[PgclusterCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
 
 	//look for scale commands
 	clusteroperator.ScaleCluster(c.PgclusterClientset, c.PgclusterClient, newExample, oldExample, oldExample.ObjectMeta.Namespace)

@@ -109,10 +109,10 @@ func (c *PgpolicylogController) onAdd(obj interface{}) {
 }
 
 func (c *PgpolicylogController) onUpdate(oldObj, newObj interface{}) {
-	oldExample := oldObj.(*crv1.Pgpolicylog)
-	newExample := newObj.(*crv1.Pgpolicylog)
-	fmt.Printf("[PgpolicylogCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
-	fmt.Printf("[PgpolicylogCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
+	//oldExample := oldObj.(*crv1.Pgpolicylog)
+	//newExample := newObj.(*crv1.Pgpolicylog)
+	//fmt.Printf("[PgpolicylogCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
+	//fmt.Printf("[PgpolicylogCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
 }
 
 func (c *PgpolicylogController) onDelete(obj interface{}) {

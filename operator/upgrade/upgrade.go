@@ -30,8 +30,8 @@ import (
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/watch"
-	//	v1batch "k8s.io/client-go/pkg/apis/batch/v1"
-	v1batch "k8s.io/api/batch/v1"
+	v1batch "k8s.io/client-go/pkg/apis/batch/v1"
+	//v1batch "k8s.io/api/batch/v1"
 
 	"k8s.io/client-go/rest"
 	//"k8s.io/client-go/tools/cache"
@@ -89,7 +89,7 @@ func DeleteUpgrade(clientset *kubernetes.Clientset, restclient *rest.RESTClient,
 //and when this occurs, will update the upgrade TPR status to
 //completed and spin up the database or cluster using the newly
 //upgraded data files
-func MajorUpgradeProcess(clientset *kubernetes.Clientset, restclient *rest.RESTClient, stopchan chan struct{}, namespace string) {
+func MajorUpgradeProcess(clientset *kubernetes.Clientset, restclient *rest.RESTClient, namespace string) {
 
 	log.Info("MajorUpgradeProcess watch starting...")
 

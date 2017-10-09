@@ -108,10 +108,10 @@ func (c *PgupgradeController) onAdd(obj interface{}) {
 }
 
 func (c *PgupgradeController) onUpdate(oldObj, newObj interface{}) {
-	oldExample := oldObj.(*crv1.Pgupgrade)
-	newExample := newObj.(*crv1.Pgupgrade)
-	fmt.Printf("[PgupgradeCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
-	fmt.Printf("[PgupgradeCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
+	//oldExample := oldObj.(*crv1.Pgupgrade)
+	//newExample := newObj.(*crv1.Pgupgrade)
+	//fmt.Printf("[PgupgradeCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
+	//fmt.Printf("[PgupgradeCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
 }
 
 func (c *PgupgradeController) onDelete(obj interface{}) {

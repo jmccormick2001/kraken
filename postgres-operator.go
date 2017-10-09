@@ -38,6 +38,7 @@ import (
 	//crv1 "github.com/crunchydata/kraken/apis/cr/v1"
 	crdclient "github.com/crunchydata/kraken/client"
 	"github.com/crunchydata/kraken/operator/backup"
+	"github.com/crunchydata/kraken/operator/upgrade"
 
 	"github.com/crunchydata/kraken/controller"
 	"k8s.io/client-go/kubernetes"
@@ -161,6 +162,7 @@ func main() {
 
 	Namespace := "default"
 	go backup.ProcessJobs(Clientset, crdClient, Namespace)
+	go upgrade.MajorUpgradeProcess(Clientset, crdClient, Namespace)
 
 	fmt.Print("at end of setup, beginning wait...")
 

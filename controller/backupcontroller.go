@@ -106,10 +106,10 @@ func (c *PgbackupController) onAdd(obj interface{}) {
 }
 
 func (c *PgbackupController) onUpdate(oldObj, newObj interface{}) {
-	oldExample := oldObj.(*crv1.Pgbackup)
-	newExample := newObj.(*crv1.Pgbackup)
-	fmt.Printf("[PgbackupCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
-	fmt.Printf("[PgbackupCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
+	//oldExample := oldObj.(*crv1.Pgbackup)
+	//newExample := newObj.(*crv1.Pgbackup)
+	//fmt.Printf("[PgbackupCONTROLLER] OnUpdate oldObj: %s\n", oldExample.ObjectMeta.SelfLink)
+	//fmt.Printf("[PgbackupCONTROLLER] OnUpdate newObj: %s\n", newExample.ObjectMeta.SelfLink)
 }
 
 func (c *PgbackupController) onDelete(obj interface{}) {
