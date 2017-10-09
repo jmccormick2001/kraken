@@ -22,11 +22,10 @@ type PgbackupController struct {
 	PgbackupClientset *kubernetes.Clientset
 }
 
-// Run starts an Example resource controller
+// Run starts controller
 func (c *PgbackupController) Run(ctx context.Context) error {
 	fmt.Print("Watch Pgbackup objects\n")
 
-	// Watch Example objects
 	_, err := c.watchPgbackups(ctx)
 	if err != nil {
 		fmt.Printf("Failed to register watch for Pgbackup resource: %v\n", err)

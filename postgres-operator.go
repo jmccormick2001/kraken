@@ -37,6 +37,8 @@ import (
 
 	//crv1 "github.com/crunchydata/kraken/apis/cr/v1"
 	crdclient "github.com/crunchydata/kraken/client"
+	"github.com/crunchydata/kraken/operator/backup"
+
 	"github.com/crunchydata/kraken/controller"
 	"k8s.io/client-go/kubernetes"
 )
@@ -156,6 +158,9 @@ func main() {
 	go pgUpgradecontroller.Run(ctx)
 	go pgPolicycontroller.Run(ctx)
 	go pgPolicylogcontroller.Run(ctx)
+
+	Namespace := "default"
+	go backup.ProcessJobs(Clientset, crdClient, Namespace)
 
 	fmt.Print("at end of setup, beginning wait...")
 

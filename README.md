@@ -1,7 +1,5 @@
 # Kraken
 
-I'm not tellin...just sayin...
-
 Package Deps....
 
 checkout be41f5093e2b05c7a0befe35b04b715eb325ab43 of apiextensions-apiserver

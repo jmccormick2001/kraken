@@ -14,10 +14,10 @@ endif
 etlclient:      check-go-vars
 	        go build -buildmode=plugin -o client/etlclient.so client/etlclient.go
 #======= Main functions =======
-deploy:
-	cd examples/operator && ./deploy.sh
+deployoperator:
+	cd deploy && ./deploy.sh
 main:	check-go-vars
-	go install main.go
+	go install postgres-operator.go
 runmain:	check-go-vars
 	main --kubeconfig=/etc/kubernetes/admin.conf
 runapiserver:	check-go-vars
@@ -36,8 +36,8 @@ clean:	check-go-vars
 foo:	check-go-vars
 	cd foo && go install main.go
 operatorimage:	check-go-vars
-	cd operator && go install postgres-operator.go
-	cp $(GOBIN)/postgres-operator bin/postgres-operator
+	go install postgres-operator.go
+	cp $(GOBIN)/postgres-operator bin/postgres-operator/
 	docker build -t postgres-operator -f $(CO_BASEOS)/Dockerfile.postgres-operator.$(CO_BASEOS) .
 	docker tag postgres-operator crunchydata/postgres-operator:$(CO_BASEOS)-$(CO_VERSION)
 lsimage:

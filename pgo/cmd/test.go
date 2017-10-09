@@ -71,7 +71,7 @@ func showTest(args []string) {
 			fmt.Println("")
 			if arg == "all" || cluster.Spec.Name == arg {
 				itemFound = true
-				fmt.Println("cluster : " + cluster.Spec.Name + " (" + cluster.Spec.POSTGRES_FULL_VERSION + ")")
+				fmt.Println("cluster : " + cluster.Spec.Name + " (" + cluster.Spec.CCP_IMAGE_TAG + ")")
 				log.Debug("listing cluster " + arg)
 				//list the services
 				testServices(&cluster)

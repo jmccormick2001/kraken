@@ -219,8 +219,8 @@ func createCluster(args []string) {
 			newInstance := getClusterParams(clusterName)
 			validateConfigPolicies()
 
-			log.Error("FIX THIS 2")
-			newInstance.Spec.PSW_LAST_UPDATE = time.Now().String()
+			t := time.Now()
+			newInstance.Spec.PSW_LAST_UPDATE = t.Format(time.RFC3339)
 
 			err = RestClient.Post().
 				Resource(crv1.PgclusterResourcePlural).
