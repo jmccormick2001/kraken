@@ -223,6 +223,9 @@ func GetLabelsFromMap(labels map[string]string) string {
 	return output
 }
 
+func MyBigUnusedFunc() {
+}
+
 func PatchClusterTPR(restclient *rest.RESTClient, labelMap map[string]string, oldCrd *crv1.Pgcluster, namespace string) error {
 
 	oldData, err := json.Marshal(oldCrd)

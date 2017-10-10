@@ -14,6 +14,7 @@ endif
 etlclient:      check-go-vars
 	        go build -buildmode=plugin -o client/etlclient.so client/etlclient.go
 #======= Main functions =======
+#	cd pgo && env GOOS=darwin GOARCH=amd64 go build pgo.go 
 deployoperator:
 	cd deploy && ./deploy.sh
 main:	check-go-vars
@@ -33,8 +34,6 @@ runpgo:	check-go-vars
 clean:	check-go-vars
 	rm -rf $(GOPATH)/pkg/* $(GOBIN)/main $(GOBIN)/pgo
 	godep restore
-foo:	check-go-vars
-	cd foo && go install main.go
 operatorimage:	check-go-vars
 	go install postgres-operator.go
 	cp $(GOBIN)/postgres-operator bin/postgres-operator/
@@ -49,6 +48,7 @@ csvloadimage:
 all:
 	make operatorimage
 	make lsimage
+	make csvloadimage
 	make pgo
 push:
 	docker push crunchydata/lspvc:$(CO_IMAGE_TAG)
@@ -60,6 +60,7 @@ release:	check-go-vars
 	cp $(GOBIN)/pgo $(RELTMPDIR)
 	cp $(COROOT)/examples/*pgo.yaml* $(RELTMPDIR)
 	cp $(COROOT)/examples/*pgo.lspvc-template.json $(RELTMPDIR)
+	cp $(COROOT)/examples/*pgo.csvload-template.json $(RELTMPDIR)
 	tar czvf $(RELFILE) -C $(RELTMPDIR) .
 default:
 	all

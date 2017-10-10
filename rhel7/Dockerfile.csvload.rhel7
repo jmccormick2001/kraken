@@ -1,4 +1,5 @@
-FROM centos:7
+FROM registry.access.redhat.com/rhel7.3
+
 
 LABEL name="crunchydata/csvload" \
         vendor="crunchy data" \

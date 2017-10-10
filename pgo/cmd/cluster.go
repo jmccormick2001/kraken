@@ -423,6 +423,7 @@ func getReadyStatus(pod *v1.Pod) string {
 
 }
 
+/**
 func getValidNodeName() string {
 	var err error
 	nodes, err := Clientset.CoreV1().Nodes().List(meta_v1.ListOptions{})
@@ -440,6 +441,8 @@ func getValidNodeName() string {
 	return "error here"
 
 }
+
+*/
 func validateUserLabels() error {
 
 	var err error
